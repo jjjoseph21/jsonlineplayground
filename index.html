@@ -1,1873 +1,2191 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Playwright Mastery — 20-Hour Plan</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --surface2: #18181f;
-    --border: #2a2a38;
-    --accent: #00e5a0;
-    --accent2: #7c6bff;
-    --accent3: #ff6b6b;
-    --text: #e8e8f0;
-    --muted: #6b6b88;
-    --tag-bg: #1e1e2e;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Animated background grid */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 60px 24px 80px;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Header */
-  .header {
-    margin-bottom: 64px;
-  }
-
-  .eyebrow {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .eyebrow::before {
-    content: '';
-    display: inline-block;
-    width: 24px;
-    height: 1px;
-    background: var(--accent);
-  }
-
-  h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(40px, 7vw, 72px);
-    font-weight: 800;
-    line-height: 0.95;
-    letter-spacing: -0.03em;
-    color: #fff;
-    margin-bottom: 24px;
-  }
-
-  h1 span {
-    color: var(--accent);
-  }
-
-  .header-meta {
-    display: flex;
-    gap: 32px;
-    flex-wrap: wrap;
-    margin-top: 32px;
-    padding-top: 32px;
-    border-top: 1px solid var(--border);
-  }
-
-  .meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .meta-label {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .meta-value {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-  }
-
-  /* Principle banner */
-  .principle {
-    background: linear-gradient(135deg, rgba(0,229,160,0.08), rgba(124,107,255,0.08));
-    border: 1px solid rgba(0,229,160,0.2);
-    border-radius: 12px;
-    padding: 24px 28px;
-    margin-bottom: 56px;
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .principle-icon {
-    font-size: 22px;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .principle-text {
-    font-size: 13px;
-    line-height: 1.7;
-    color: #b8b8d0;
-  }
-
-  .principle-text strong {
-    color: var(--accent);
-    font-weight: 500;
-  }
-
-  /* Phase labels */
-  .phase-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 20px;
-    margin-top: 56px;
-  }
-
-  .phase-header:first-of-type {
-    margin-top: 0;
-  }
-
-  .phase-badge {
-    font-family: 'Syne', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 4px 12px;
-    border-radius: 4px;
-  }
-
-  .phase-badge.phase-1 { background: rgba(0,229,160,0.12); color: var(--accent); }
-  .phase-badge.phase-2 { background: rgba(124,107,255,0.12); color: var(--accent2); }
-  .phase-badge.phase-3 { background: rgba(255,107,107,0.12); color: var(--accent3); }
-  .phase-badge.phase-4 { background: rgba(255,195,0,0.12); color: #ffc300; }
-
-  .phase-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: #fff;
-  }
-
-  .phase-line {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  /* Session cards */
-  .session {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    margin-bottom: 12px;
-    overflow: hidden;
-    transition: border-color 0.2s, transform 0.2s;
-    cursor: pointer;
-  }
-
-  .session:hover {
-    border-color: rgba(0,229,160,0.3);
-    transform: translateX(4px);
-  }
-
-  .session-header {
-    display: grid;
-    grid-template-columns: 56px 1fr auto;
-    align-items: center;
-    gap: 16px;
-    padding: 18px 24px;
-  }
-
-  .session-num {
-    font-family: 'Syne', sans-serif;
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--border);
-    line-height: 1;
-    transition: color 0.2s;
-  }
-
-  .session:hover .session-num {
-    color: var(--accent);
-  }
-
-  .session-title-wrap {}
-
-  .session-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 4px;
-    line-height: 1.3;
-  }
-
-  .session-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 6px;
-  }
-
-  .tag {
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 2px 8px;
-    border-radius: 3px;
-    background: var(--tag-bg);
-    color: var(--muted);
-    border: 1px solid var(--border);
-  }
-
-  .tag.core { border-color: rgba(0,229,160,0.3); color: var(--accent); }
-  .tag.practice { border-color: rgba(124,107,255,0.3); color: var(--accent2); }
-  .tag.advanced { border-color: rgba(255,107,107,0.3); color: var(--accent3); }
-
-  .chevron {
-    color: var(--muted);
-    font-size: 18px;
-    transition: transform 0.3s, color 0.2s;
-    flex-shrink: 0;
-  }
-
-  .session.open .chevron {
-    transform: rotate(180deg);
-    color: var(--accent);
-  }
-
-  /* Session body */
-  .session-body {
-    display: none;
-    padding: 0 24px 24px;
-    border-top: 1px solid var(--border);
-  }
-
-  .session.open .session-body {
-    display: block;
-  }
-
-  .section-label {
-    font-size: 9px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-    margin-top: 20px;
-  }
-
-  .objective {
-    font-size: 13px;
-    line-height: 1.7;
-    color: #b8b8d0;
-    padding: 12px 16px;
-    background: var(--surface2);
-    border-radius: 8px;
-    border-left: 3px solid var(--accent);
-  }
-
-  .topics-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .topics-list li {
-    font-size: 12px;
-    color: #b8b8d0;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    line-height: 1.5;
-  }
-
-  .topics-list li::before {
-    content: '→';
-    color: var(--accent);
-    flex-shrink: 0;
-    font-size: 11px;
-    margin-top: 1px;
-  }
-
-  .resources-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .resource-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 10px 14px;
-    background: var(--surface2);
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    transition: border-color 0.2s;
-    text-decoration: none;
-  }
-
-  .resource-item:hover {
-    border-color: rgba(124,107,255,0.4);
-  }
-
-  .resource-type {
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 2px 7px;
-    border-radius: 3px;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .rt-docs { background: rgba(0,229,160,0.12); color: var(--accent); }
-  .rt-video { background: rgba(124,107,255,0.12); color: var(--accent2); }
-  .rt-practice { background: rgba(255,195,0,0.12); color: #ffc300; }
-  .rt-guide { background: rgba(255,107,107,0.12); color: var(--accent3); }
-  .rt-repo { background: rgba(100,200,255,0.12); color: #64c8ff; }
-
-  .resource-info {}
-
-  .resource-name {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text);
-    margin-bottom: 2px;
-  }
-
-  .resource-desc {
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 1.4;
-  }
-
-  /* Review block */
-  .review-block {
-    margin-top: 20px;
-    padding: 16px 18px;
-    background: rgba(124,107,255,0.06);
-    border: 1px solid rgba(124,107,255,0.2);
-    border-radius: 10px;
-  }
-
-  .review-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-
-  .review-badge {
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    background: rgba(124,107,255,0.15);
-    color: var(--accent2);
-    border-radius: 3px;
-  }
-
-  .review-time {
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  .review-questions {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .review-questions li {
-    font-size: 11px;
-    color: #a0a0c0;
-    display: flex;
-    gap: 10px;
-    line-height: 1.5;
-  }
-
-  .review-questions li::before {
-    content: '?';
-    color: var(--accent2);
-    font-weight: 700;
-    flex-shrink: 0;
-    font-size: 11px;
-  }
-
-  /* Progress tracker */
-  .progress-section {
-    margin-bottom: 48px;
-    padding: 24px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-  }
-
-  .progress-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 16px;
-  }
-
-  .progress-bar-wrap {
-    background: var(--surface2);
-    border-radius: 4px;
-    height: 6px;
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
-
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    width: 0%;
-    border-radius: 4px;
-    transition: width 0.4s ease;
-  }
-
-  .progress-stats {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  .progress-dots {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 16px;
-  }
-
-  .progress-dot {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 9px;
-    color: var(--muted);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'DM Mono', monospace;
-  }
-
-  .progress-dot:hover { border-color: var(--accent); color: var(--accent); }
-  .progress-dot.done { background: rgba(0,229,160,0.12); border-color: var(--accent); color: var(--accent); }
-
-  /* Footer */
-  .footer {
-    margin-top: 72px;
-    padding-top: 32px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: gap;
-  }
-
-  .footer-note {
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 1.6;
-    max-width: 500px;
-  }
-
-  .footer-tag {
-    font-family: 'Syne', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--accent);
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playwright Mastery — 20-Hour Plan</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #18181f;
+      --border: #2a2a38;
+      --accent: #00e5a0;
+      --accent2: #7c6bff;
+      --accent3: #ff6b6b;
+      --text: #e8e8f0;
+      --muted: #6b6b88;
+      --tag-bg: #1e1e2e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 229, 160, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 160, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      margin-bottom: 64px;
+    }
+
+    .eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(40px, 7vw, 72px);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+
+    h1 span {
+      color: var(--accent);
+    }
+
+    .header-meta {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meta-label {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .meta-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* Principle banner */
+    .principle {
+      background: linear-gradient(135deg, rgba(0, 229, 160, 0.08), rgba(124, 107, 255, 0.08));
+      border: 1px solid rgba(0, 229, 160, 0.2);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 56px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .principle-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .principle-text {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #b8b8d0;
+    }
+
+    .principle-text strong {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* Phase labels */
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      margin-top: 56px;
+    }
+
+    .phase-header:first-of-type {
+      margin-top: 0;
+    }
+
+    .phase-badge {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 4px;
+    }
+
+    .phase-badge.phase-1 {
+      background: rgba(0, 229, 160, 0.12);
+      color: var(--accent);
+    }
+
+    .phase-badge.phase-2 {
+      background: rgba(124, 107, 255, 0.12);
+      color: var(--accent2);
+    }
+
+    .phase-badge.phase-3 {
+      background: rgba(255, 107, 107, 0.12);
+      color: var(--accent3);
+    }
+
+    .phase-badge.phase-4 {
+      background: rgba(255, 195, 0, 0.12);
+      color: #ffc300;
+    }
+
+    .phase-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .phase-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Session cards */
+    .session {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+
+    .session:hover {
+      border-color: rgba(0, 229, 160, 0.3);
+      transform: translateX(4px);
+    }
+
+    .session-header {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 24px;
+    }
+
+    .session-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--border);
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .session:hover .session-num {
+      color: var(--accent);
+    }
+
+    .session-title-wrap {}
+
+    .session-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .session-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .tag {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: var(--tag-bg);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .tag.core {
+      border-color: rgba(0, 229, 160, 0.3);
+      color: var(--accent);
+    }
+
+    .tag.practice {
+      border-color: rgba(124, 107, 255, 0.3);
+      color: var(--accent2);
+    }
+
+    .tag.advanced {
+      border-color: rgba(255, 107, 107, 0.3);
+      color: var(--accent3);
+    }
+
+    .chevron {
+      color: var(--muted);
+      font-size: 18px;
+      transition: transform 0.3s, color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .session.open .chevron {
+      transform: rotate(180deg);
+      color: var(--accent);
+    }
+
+    /* Session body */
+    .session-body {
+      display: none;
+      padding: 0 24px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .session.open .session-body {
+      display: block;
+    }
+
+    .section-label {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+      margin-top: 20px;
+    }
+
+    .objective {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #b8b8d0;
+      padding: 12px 16px;
+      background: var(--surface2);
+      border-radius: 8px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .topics-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .topics-list li {
+      font-size: 12px;
+      color: #b8b8d0;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+    }
+
+    .topics-list li::before {
+      content: '→';
+      color: var(--accent);
+      flex-shrink: 0;
+      font-size: 11px;
+      margin-top: 1px;
+    }
+
+    .resources-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .resource-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: border-color 0.2s;
+      text-decoration: none;
+    }
+
+    .resource-item:hover {
+      border-color: rgba(124, 107, 255, 0.4);
+    }
+
+    .resource-type {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .rt-docs {
+      background: rgba(0, 229, 160, 0.12);
+      color: var(--accent);
+    }
+
+    .rt-video {
+      background: rgba(124, 107, 255, 0.12);
+      color: var(--accent2);
+    }
+
+    .rt-practice {
+      background: rgba(255, 195, 0, 0.12);
+      color: #ffc300;
+    }
+
+    .rt-guide {
+      background: rgba(255, 107, 107, 0.12);
+      color: var(--accent3);
+    }
+
+    .rt-repo {
+      background: rgba(100, 200, 255, 0.12);
+      color: #64c8ff;
+    }
+
+    .resource-info {}
+
+    .resource-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .resource-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* Review block */
+    .review-block {
+      margin-top: 20px;
+      padding: 16px 18px;
+      background: rgba(124, 107, 255, 0.06);
+      border: 1px solid rgba(124, 107, 255, 0.2);
+      border-radius: 10px;
+    }
+
+    .review-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .review-badge {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      background: rgba(124, 107, 255, 0.15);
+      color: var(--accent2);
+      border-radius: 3px;
+    }
+
+    .review-time {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .review-questions {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .review-questions li {
+      font-size: 11px;
+      color: #a0a0c0;
+      display: flex;
+      gap: 10px;
+      line-height: 1.5;
+    }
+
+    .review-questions li::before {
+      content: '?';
+      color: var(--accent2);
+      font-weight: 700;
+      flex-shrink: 0;
+      font-size: 11px;
+    }
+
+    /* Progress tracker */
+    .progress-section {
+      margin-bottom: 48px;
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .progress-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+
+    .progress-bar-wrap {
+      background: var(--surface2);
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 0%;
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    .progress-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .progress-dots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 16px;
+    }
+
+    .progress-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: var(--muted);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .progress-dot:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .progress-dot.done {
+      background: rgba(0, 229, 160, 0.12);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 72px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-note {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 500px;
+    }
+
+    .footer-tag {
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    /* Quick Access */
+    .quick-access-section,
+    .toolbox-section {
+      margin-bottom: 32px;
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .quick-access-header,
+    .toolbox-header {
+      margin-bottom: 18px;
+    }
+
+    .quick-access-title,
+    .toolbox-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .quick-access-subtitle,
+    .toolbox-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .quick-access-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+    }
+
+    .quick-link {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .quick-link:hover {
+      border-color: rgba(0, 229, 160, 0.45);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .toolbox-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: rgba(0, 229, 160, 0.45);
+      box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.08);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-btn {
+      background: var(--surface2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: rgba(124, 107, 255, 0.45);
+      color: var(--accent2);
+    }
+
+    .session.hidden {
+      display: none;
+    }
+  </style>
 </head>
+
 <body>
-<div class="container">
+  <div class="container">
 
-  <!-- Header -->
-  <header class="header">
-    <div class="eyebrow">Learning Roadmap</div>
-    <h1>Playwright<br><span>Mastery</span><br>Plan</h1>
-    <div class="header-meta">
-      <div class="meta-item">
-        <span class="meta-label">Total Hours</span>
-        <span class="meta-value">20 hrs</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Sessions</span>
-        <span class="meta-value">20 × 60 min</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Review</span>
-        <span class="meta-value">15 min each</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Pace</span>
-        <span class="meta-value">Self-directed</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Principle</span>
-        <span class="meta-value">80/20 Focus</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- Principle -->
-  <div class="principle">
-    <div class="principle-icon">⚡</div>
-    <div class="principle-text">
-      <strong>The 80/20 approach:</strong> Most Playwright work — writing locators, handling async flows, assertions, page fixtures, and CI integration — is covered by about 20% of the API. This plan front-loads exactly that core. By session 10 you'll be productive on real projects. Sessions 11–20 add the professional layer that separates a tester from a test engineer.
-    </div>
-  </div>
-
-  <!-- Progress Tracker -->
-  <div class="progress-section">
-    <div class="progress-title">Your Progress</div>
-    <div class="progress-bar-wrap">
-      <div class="progress-bar-fill" id="progressBar"></div>
-    </div>
-    <div class="progress-stats">
-      <span id="progressText">0 of 20 sessions complete</span>
-      <span id="hoursText">0 / 20 hours</span>
-    </div>
-    <div class="progress-dots" id="progressDots"></div>
-  </div>
-
-  <!-- ===== PHASE 1 ===== -->
-  <div class="phase-header">
-    <div class="phase-badge phase-1">Phase 1</div>
-    <div class="phase-title">Foundations & Core Concepts</div>
-    <div class="phase-line"></div>
-  </div>
-
-  <!-- Session 1 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">01</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Environment Setup & First Test</div>
-        <div class="session-tags">
-          <span class="tag core">Core</span>
-          <span class="tag">Setup</span>
-          <span class="tag">Node.js</span>
+    <!-- Header -->
+    <header class="header">
+      <div class="eyebrow">QA Knowledge Base</div>
+      <h1>Playwright<br><span>Reference</span><br>Hub</h1>
+      <div class="header-meta">
+        <div class="meta-item">
+          <span class="meta-label">Total Hours</span>
+          <span class="meta-value">20 hrs</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Sessions</span>
+          <span class="meta-value">20 × 60 min</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Review</span>
+          <span class="meta-value">15 min each</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Pace</span>
+          <span class="meta-value">Self-directed</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Principle</span>
+          <span class="meta-value">80/20 Focus</span>
         </div>
       </div>
-      <div class="chevron">▾</div>
+    </header>
+
+    <!-- Principle -->
+    <div class="principle">
+      <div class="principle-icon">⚡</div>
+      <div class="principle-text">
+        <strong>The 80/20 approach:</strong> Most Playwright work — writing locators, handling async flows, assertions,
+        page fixtures, and CI integration — is covered by about 20% of the API. This plan front-loads exactly that core.
+        By session 10 you'll be productive on real projects. Sessions 11–20 add the professional layer that separates a
+        tester from a test engineer.
+      </div>
     </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Install Playwright, scaffold a project, and run your first passing test against a live URL. Understand the project structure and config file.</div>
 
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Node.js + npm prerequisites check</li>
-        <li><code>npm init playwright@latest</code> — what it creates and why</li>
-        <li>playwright.config.ts anatomy: baseURL, browsers, timeout</li>
-        <li>Writing a minimal test with <code>test()</code>, <code>page.goto()</code>, <code>expect()</code></li>
-        <li>Running tests: <code>npx playwright test</code>, <code>--ui</code> flag, <code>--headed</code></li>
-        <li>Reading the HTML report: <code>npx playwright show-report</code></li>
-      </ul>
+    <!-- Quick Access -->
+    <div class="quick-access-section">
+      <div class="quick-access-header">
+        <div class="quick-access-title">Quick Access</div>
+        <div class="quick-access-subtitle">Jump to the patterns and topics used most often</div>
+      </div>
 
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">Playwright — Installation Guide</div>
-            <div class="resource-desc">playwright.dev/docs/intro — official getting started, always current</div>
+      <div class="quick-access-grid">
+        <button class="quick-link" data-target="session-2">Locators</button>
+        <button class="quick-link" data-target="session-4">Assertions</button>
+        <button class="quick-link" data-target="session-8">Auth / Storage State</button>
+        <button class="quick-link" data-target="session-7">Network Mocking</button>
+        <button class="quick-link" data-target="session-9">Flake Prevention</button>
+        <button class="quick-link" data-target="session-10">Debug / Trace Viewer</button>
+        <button class="quick-link" data-target="session-15">CI / YAML</button>
+        <button class="quick-link" data-target="session-16">TypeScript Patterns</button>
+      </div>
+    </div>
+
+    <!-- Search / Filter -->
+    <div class="toolbox-section">
+      <div class="toolbox-header">
+        <div class="toolbox-title">Find What You Need</div>
+        <div class="toolbox-subtitle">Search by keyword or filter by topic</div>
+      </div>
+
+      <div class="toolbox-controls">
+        <input type="text" id="searchInput" class="search-input"
+          placeholder="Search sessions, tags, topics, objectives..." />
+
+        <div class="filter-group">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="core">Core</button>
+          <button class="filter-btn" data-filter="debug">Debug</button>
+          <button class="filter-btn" data-filter="api">API</button>
+          <button class="filter-btn" data-filter="auth">Auth</button>
+          <button class="filter-btn" data-filter="ci">CI/CD</button>
+          <button class="filter-btn" data-filter="typescript">TypeScript</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Tracker -->
+    <div class="progress-section">
+      <div class="progress-title">Your Progress</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+      <div class="progress-stats">
+        <span id="progressText">0 of 20 sessions complete</span>
+        <span id="hoursText">0 / 20 hours</span>
+      </div>
+      <div class="progress-dots" id="progressDots"></div>
+    </div>
+
+    <!-- ===== PHASE 1 ===== -->
+    <div class="phase-header">
+      <div class="phase-badge phase-1">Phase 1</div>
+      <div class="phase-title">Foundations & Core Concepts</div>
+      <div class="phase-line"></div>
+    </div>
+
+    <!-- Session 1 -->
+    <div class="session" id="session-1" data-category="core" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">01</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Environment Setup & First Test</div>
+          <div class="session-tags">
+            <span class="tag core">Core</span>
+            <span class="tag">Setup</span>
+            <span class="tag">Node.js</span>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-video">Video</span>
-          <div class="resource-info">
-            <div class="resource-name">Playwright Full Course – Learnwebcode (YouTube)</div>
-            <div class="resource-desc">Watch chapters 1–2 only (~25 min). Clear walkthrough for first-timers.</div>
-          </div>
-        </div>
-        <div class="resource-item">
-          <span class="resource-type rt-practice">Practice</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/writing-tests</div>
-            <div class="resource-desc">Run all three examples in the quickstart yourself — don't just read</div>
-          </div>
-        </div>
+        <div class="chevron">▾</div>
       </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Install Playwright, scaffold a project, and run your first passing test against a live
+          URL. Understand the project structure and config file.</div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
-        </div>
-        <ul class="review-questions">
-          <li>What does playwright.config.ts control, and which 3 settings matter most day-to-day?</li>
-          <li>What's the difference between <code>--ui</code> and <code>--headed</code>?</li>
-          <li>Write from memory: a 5-line test that visits example.com and checks the title.</li>
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Node.js + npm prerequisites check</li>
+          <li><code>npm init playwright@latest</code> — what it creates and why</li>
+          <li>playwright.config.ts anatomy: baseURL, browsers, timeout</li>
+          <li>Writing a minimal test with <code>test()</code>, <code>page.goto()</code>, <code>expect()</code></li>
+          <li>Running tests: <code>npx playwright test</code>, <code>--ui</code> flag, <code>--headed</code></li>
+          <li>Reading the HTML report: <code>npx playwright show-report</code></li>
         </ul>
+
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">Playwright — Installation Guide</div>
+              <div class="resource-desc">playwright.dev/docs/intro — official getting started, always current</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-video">Video</span>
+            <div class="resource-info">
+              <div class="resource-name">Playwright Full Course – Learnwebcode (YouTube)</div>
+              <div class="resource-desc">Watch chapters 1–2 only (~25 min). Clear walkthrough for first-timers.</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-practice">Practice</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/writing-tests</div>
+              <div class="resource-desc">Run all three examples in the quickstart yourself — don't just read</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
+          </div>
+          <ul class="review-questions">
+            <li>What does playwright.config.ts control, and which 3 settings matter most day-to-day?</li>
+            <li>What's the difference between <code>--ui</code> and <code>--headed</code>?</li>
+            <li>Write from memory: a 5-line test that visits example.com and checks the title.</li>
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Session 2 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">02</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Locators — The Core Skill</div>
-        <div class="session-tags">
-          <span class="tag core">Core</span>
-          <span class="tag">Selectors</span>
-          <span class="tag">DOM</span>
+    <!-- Session 2 -->
+    <div class="session" id="session-2" data-category="core" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">02</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Locators — The Core Skill</div>
+          <div class="session-tags">
+            <span class="tag core">Core</span>
+            <span class="tag">Selectors</span>
+            <span class="tag">DOM</span>
+          </div>
         </div>
+        <div class="chevron">▾</div>
       </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Master the Locator API — the single most important concept in Playwright. Understand why locators beat raw selectors and how to write resilient ones.</div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Master the Locator API — the single most important concept in Playwright. Understand why
+          locators beat raw selectors and how to write resilient ones.</div>
 
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Locator vs ElementHandle — always use Locator</li>
-        <li>Built-in role locators: <code>getByRole()</code>, <code>getByText()</code>, <code>getByLabel()</code>, <code>getByPlaceholder()</code>, <code>getByTestId()</code></li>
-        <li>CSS and XPath as fallbacks — when and why</li>
-        <li>Chaining locators: <code>page.locator('.card').getByRole('button')</code></li>
-        <li>The Playwright Inspector for picking locators live</li>
-        <li>Locator best-practice hierarchy (ARIA &gt; text &gt; test-id &gt; CSS)</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/locators</div>
-            <div class="resource-desc">Read the entire Locators page — this is the highest ROI page in all of the docs</div>
-          </div>
-        </div>
-        <div class="resource-item">
-          <span class="resource-type rt-video">Video</span>
-          <div class="resource-info">
-            <div class="resource-name">"Playwright Locators Deep Dive" — Automated Testing with Cypress/Playwright channel</div>
-            <div class="resource-desc">Search YouTube for this title; ~20 min hands-on walkthrough of all built-in locators</div>
-          </div>
-        </div>
-        <div class="resource-item">
-          <span class="resource-type rt-practice">Practice</span>
-          <div class="resource-info">
-            <div class="resource-name">practice.expandtesting.com or demoqa.com</div>
-            <div class="resource-desc">Write 10 locators using only getByRole/getByLabel — no CSS allowed in this drill</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
-        </div>
-        <ul class="review-questions">
-          <li>When would you use <code>getByTestId</code> over <code>getByRole</code>?</li>
-          <li>What is auto-waiting and how does it relate to locators?</li>
-          <li>Name 3 signs that a locator will be brittle in production.</li>
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Locator vs ElementHandle — always use Locator</li>
+          <li>Built-in role locators: <code>getByRole()</code>, <code>getByText()</code>, <code>getByLabel()</code>,
+            <code>getByPlaceholder()</code>, <code>getByTestId()</code>
+          </li>
+          <li>CSS and XPath as fallbacks — when and why</li>
+          <li>Chaining locators: <code>page.locator('.card').getByRole('button')</code></li>
+          <li>The Playwright Inspector for picking locators live</li>
+          <li>Locator best-practice hierarchy (ARIA &gt; text &gt; test-id &gt; CSS)</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 3 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">03</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Actions & Auto-Waiting</div>
-        <div class="session-tags">
-          <span class="tag core">Core</span>
-          <span class="tag">Interactions</span>
-          <span class="tag">Async</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Learn how Playwright auto-waits before every action, and how to use every major interaction method: click, fill, select, check, hover, keyboard, drag.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>How auto-wait works: actionability checks (visible, stable, enabled)</li>
-        <li><code>click()</code>, <code>fill()</code>, <code>type()</code>, <code>press()</code>, <code>selectOption()</code></li>
-        <li><code>check()</code> / <code>uncheck()</code> for checkboxes and radios</li>
-        <li><code>hover()</code>, <code>focus()</code>, <code>blur()</code></li>
-        <li><code>dragAndDrop()</code> and mouse events</li>
-        <li><code>page.keyboard</code> and <code>page.mouse</code> for low-level control</li>
-        <li>Uploading files with <code>setInputFiles()</code></li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/input & /docs/actionability</div>
-            <div class="resource-desc">Read both pages back to back — actionability is what prevents flaky tests</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/locators</div>
+              <div class="resource-desc">Read the entire Locators page — this is the highest ROI page in all of the docs
+              </div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-video">Video</span>
+            <div class="resource-info">
+              <div class="resource-name">"Playwright Locators Deep Dive" — Automated Testing with Cypress/Playwright
+                channel</div>
+              <div class="resource-desc">Search YouTube for this title; ~20 min hands-on walkthrough of all built-in
+                locators</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-practice">Practice</span>
+            <div class="resource-info">
+              <div class="resource-name">practice.expandtesting.com or demoqa.com</div>
+              <div class="resource-desc">Write 10 locators using only getByRole/getByLabel — no CSS allowed in this
+                drill</div>
+            </div>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-practice">Practice</span>
-          <div class="resource-info">
-            <div class="resource-name">formy.herokuapp.com</div>
-            <div class="resource-desc">Automate the entire form: text fields, dropdowns, checkboxes, radio, file upload, date picker</div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
           </div>
+          <ul class="review-questions">
+            <li>When would you use <code>getByTestId</code> over <code>getByRole</code>?</li>
+            <li>What is auto-waiting and how does it relate to locators?</li>
+            <li>Name 3 signs that a locator will be brittle in production.</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+    <!-- Session 3 -->
+    <div class="session" id="session-3" data-category="core" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">03</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Actions & Auto-Waiting</div>
+          <div class="session-tags">
+            <span class="tag core">Core</span>
+            <span class="tag">Interactions</span>
+            <span class="tag">Async</span>
+          </div>
         </div>
-        <ul class="review-questions">
-          <li>What are the 4 actionability checks Playwright performs before clicking?</li>
-          <li>What's the difference between <code>fill()</code> and <code>type()</code>?</li>
-          <li>How would you upload multiple files at once?</li>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Learn how Playwright auto-waits before every action, and how to use every major
+          interaction method: click, fill, select, check, hover, keyboard, drag.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>How auto-wait works: actionability checks (visible, stable, enabled)</li>
+          <li><code>click()</code>, <code>fill()</code>, <code>type()</code>, <code>press()</code>,
+            <code>selectOption()</code>
+          </li>
+          <li><code>check()</code> / <code>uncheck()</code> for checkboxes and radios</li>
+          <li><code>hover()</code>, <code>focus()</code>, <code>blur()</code></li>
+          <li><code>dragAndDrop()</code> and mouse events</li>
+          <li><code>page.keyboard</code> and <code>page.mouse</code> for low-level control</li>
+          <li>Uploading files with <code>setInputFiles()</code></li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 4 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">04</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Assertions with expect()</div>
-        <div class="session-tags">
-          <span class="tag core">Core</span>
-          <span class="tag">Assertions</span>
-          <span class="tag">expect</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Write precise, auto-retrying assertions that form the backbone of every test. Know the full set of web-first matchers and when to use soft assertions.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Web-first matchers: <code>toBeVisible()</code>, <code>toHaveText()</code>, <code>toHaveValue()</code>, <code>toBeEnabled()</code>, <code>toBeChecked()</code></li>
-        <li>URL and page matchers: <code>toHaveURL()</code>, <code>toHaveTitle()</code></li>
-        <li>Count matchers: <code>toHaveCount()</code></li>
-        <li>Attribute matchers: <code>toHaveAttribute()</code>, <code>toHaveClass()</code></li>
-        <li>Soft assertions with <code>expect.soft()</code></li>
-        <li>Negation with <code>.not</code></li>
-        <li>Custom assertion timeout overrides</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/test-assertions</div>
-            <div class="resource-desc">Bookmark this — you'll return to it constantly. Read every matcher once.</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/input & /docs/actionability</div>
+              <div class="resource-desc">Read both pages back to back — actionability is what prevents flaky tests</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-practice">Practice</span>
+            <div class="resource-info">
+              <div class="resource-name">formy.herokuapp.com</div>
+              <div class="resource-desc">Automate the entire form: text fields, dropdowns, checkboxes, radio, file
+                upload, date picker</div>
+            </div>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-practice">Practice</span>
-          <div class="resource-info">
-            <div class="resource-name">Write 15 targeted assertions</div>
-            <div class="resource-desc">Use books.toscrape.com — assert title, prices, ratings, URLs using different matchers for each</div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
           </div>
+          <ul class="review-questions">
+            <li>What are the 4 actionability checks Playwright performs before clicking?</li>
+            <li>What's the difference between <code>fill()</code> and <code>type()</code>?</li>
+            <li>How would you upload multiple files at once?</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+    <!-- Session 4 -->
+    <div class="session" id="session-4" data-category="core" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">04</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Assertions with expect()</div>
+          <div class="session-tags">
+            <span class="tag core">Core</span>
+            <span class="tag">Assertions</span>
+            <span class="tag">expect</span>
+          </div>
         </div>
-        <ul class="review-questions">
-          <li>Why do web-first assertions auto-retry, and what's the default retry window?</li>
-          <li>When should you use <code>expect.soft()</code> instead of a normal assertion?</li>
-          <li>What's the difference between <code>toHaveText()</code> and <code>toContainText()</code>?</li>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Write precise, auto-retrying assertions that form the backbone of every test. Know the
+          full set of web-first matchers and when to use soft assertions.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Web-first matchers: <code>toBeVisible()</code>, <code>toHaveText()</code>, <code>toHaveValue()</code>,
+            <code>toBeEnabled()</code>, <code>toBeChecked()</code>
+          </li>
+          <li>URL and page matchers: <code>toHaveURL()</code>, <code>toHaveTitle()</code></li>
+          <li>Count matchers: <code>toHaveCount()</code></li>
+          <li>Attribute matchers: <code>toHaveAttribute()</code>, <code>toHaveClass()</code></li>
+          <li>Soft assertions with <code>expect.soft()</code></li>
+          <li>Negation with <code>.not</code></li>
+          <li>Custom assertion timeout overrides</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 5 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">05</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Test Structure, Hooks & Fixtures</div>
-        <div class="session-tags">
-          <span class="tag core">Core</span>
-          <span class="tag">Architecture</span>
-          <span class="tag">Fixtures</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Understand how to structure test files professionally using describe blocks, hooks, and Playwright's powerful fixture system for reusable setup/teardown.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li><code>test.describe()</code> for grouping related tests</li>
-        <li><code>test.beforeEach()</code>, <code>test.afterEach()</code>, <code>test.beforeAll()</code>, <code>test.afterAll()</code></li>
-        <li>Built-in fixtures: <code>page</code>, <code>context</code>, <code>browser</code>, <code>request</code></li>
-        <li>Creating custom fixtures with <code>test.extend()</code></li>
-        <li>Fixture scope: test vs worker-scoped</li>
-        <li><code>test.use()</code> for per-suite configuration overrides</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/test-fixtures</div>
-            <div class="resource-desc">The fixtures page is dense but worth every minute — it's the foundation of scalable test suites</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/test-assertions</div>
+              <div class="resource-desc">Bookmark this — you'll return to it constantly. Read every matcher once.</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-practice">Practice</span>
+            <div class="resource-info">
+              <div class="resource-name">Write 15 targeted assertions</div>
+              <div class="resource-desc">Use books.toscrape.com — assert title, prices, ratings, URLs using different
+                matchers for each</div>
+            </div>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-video">Video</span>
-          <div class="resource-info">
-            <div class="resource-name">"Playwright Fixtures Explained" — Testerops / Artem Bondar YouTube</div>
-            <div class="resource-desc">~15 min. Best visual explanation of fixture scope and extend() pattern</div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
           </div>
+          <ul class="review-questions">
+            <li>Why do web-first assertions auto-retry, and what's the default retry window?</li>
+            <li>When should you use <code>expect.soft()</code> instead of a normal assertion?</li>
+            <li>What's the difference between <code>toHaveText()</code> and <code>toContainText()</code>?</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+    <!-- Session 5 -->
+    <div class="session" id="session-5" data-category="core" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">05</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Test Structure, Hooks & Fixtures</div>
+          <div class="session-tags">
+            <span class="tag core">Core</span>
+            <span class="tag">Architecture</span>
+            <span class="tag">Fixtures</span>
+          </div>
         </div>
-        <ul class="review-questions">
-          <li>What's the difference between a test-scoped and worker-scoped fixture?</li>
-          <li>When would you use <code>beforeAll</code> vs <code>beforeEach</code>?</li>
-          <li>Create a custom <code>loggedInPage</code> fixture from memory.</li>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Understand how to structure test files professionally using describe blocks, hooks, and
+          Playwright's powerful fixture system for reusable setup/teardown.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li><code>test.describe()</code> for grouping related tests</li>
+          <li><code>test.beforeEach()</code>, <code>test.afterEach()</code>, <code>test.beforeAll()</code>,
+            <code>test.afterAll()</code>
+          </li>
+          <li>Built-in fixtures: <code>page</code>, <code>context</code>, <code>browser</code>, <code>request</code>
+          </li>
+          <li>Creating custom fixtures with <code>test.extend()</code></li>
+          <li>Fixture scope: test vs worker-scoped</li>
+          <li><code>test.use()</code> for per-suite configuration overrides</li>
         </ul>
+
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/test-fixtures</div>
+              <div class="resource-desc">The fixtures page is dense but worth every minute — it's the foundation of
+                scalable test suites</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-video">Video</span>
+            <div class="resource-info">
+              <div class="resource-name">"Playwright Fixtures Explained" — Testerops / Artem Bondar YouTube</div>
+              <div class="resource-desc">~15 min. Best visual explanation of fixture scope and extend() pattern</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
+          </div>
+          <ul class="review-questions">
+            <li>What's the difference between a test-scoped and worker-scoped fixture?</li>
+            <li>When would you use <code>beforeAll</code> vs <code>beforeEach</code>?</li>
+            <li>Create a custom <code>loggedInPage</code> fixture from memory.</li>
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- ===== PHASE 2 ===== -->
-  <div class="phase-header">
-    <div class="phase-badge phase-2">Phase 2</div>
-    <div class="phase-title">Real-World Patterns</div>
-    <div class="phase-line"></div>
-  </div>
-
-  <!-- Session 6 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">06</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Page Object Model (POM)</div>
-        <div class="session-tags">
-          <span class="tag practice">Pattern</span>
-          <span class="tag">Architecture</span>
-          <span class="tag">Maintainability</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
+    <!-- ===== PHASE 2 ===== -->
+    <div class="phase-header">
+      <div class="phase-badge phase-2">Phase 2</div>
+      <div class="phase-title">Real-World Patterns</div>
+      <div class="phase-line"></div>
     </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Implement the Page Object Model — the industry-standard pattern for maintainable test suites. Build a real POM layer for a multi-page app.</div>
 
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Why POM: encapsulation, DRY, readable tests</li>
-        <li>TypeScript class structure for a Page Object</li>
-        <li>Constructors receiving <code>Page</code> instance</li>
-        <li>Exposing actions as methods, locators as getters</li>
-        <li>Composing page objects across navigation flows</li>
-        <li>POM + custom fixtures: the professional combo</li>
-        <li>Component Objects for reusable UI fragments</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/pom</div>
-            <div class="resource-desc">Official POM guide with full example — read then immediately rewrite it from scratch</div>
+    <!-- Session 6 -->
+    <div class="session" id="session-6" data-category="core" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">06</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Page Object Model (POM)</div>
+          <div class="session-tags">
+            <span class="tag practice">Pattern</span>
+            <span class="tag">Architecture</span>
+            <span class="tag">Maintainability</span>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-repo">Repo</span>
-          <div class="resource-info">
-            <div class="resource-name">github.com/microsoft/playwright/tree/main/examples</div>
-            <div class="resource-desc">Study the todomvc example — best real-world POM reference from the Playwright team itself</div>
-          </div>
-        </div>
-        <div class="resource-item">
-          <span class="resource-type rt-practice">Practice</span>
-          <div class="resource-info">
-            <div class="resource-name">Build POM for saucedemo.com</div>
-            <div class="resource-desc">Login page, Inventory page, Cart page, Checkout flow — 4 page objects, 8 tests</div>
-          </div>
-        </div>
+        <div class="chevron">▾</div>
       </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Implement the Page Object Model — the industry-standard pattern for maintainable test
+          suites. Build a real POM layer for a multi-page app.</div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
-        </div>
-        <ul class="review-questions">
-          <li>What goes in a Page Object vs what stays in the test file?</li>
-          <li>How do you integrate POM classes with Playwright fixtures?</li>
-          <li>What's the risk of putting assertions inside page objects?</li>
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Why POM: encapsulation, DRY, readable tests</li>
+          <li>TypeScript class structure for a Page Object</li>
+          <li>Constructors receiving <code>Page</code> instance</li>
+          <li>Exposing actions as methods, locators as getters</li>
+          <li>Composing page objects across navigation flows</li>
+          <li>POM + custom fixtures: the professional combo</li>
+          <li>Component Objects for reusable UI fragments</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 7 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">07</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Network Interception & Mocking</div>
-        <div class="session-tags">
-          <span class="tag practice">Pattern</span>
-          <span class="tag">Network</span>
-          <span class="tag">API</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Intercept, mock, modify, and spy on network requests. This skill lets you test UI states that are hard to reproduce with a real backend.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li><code>page.route()</code> to intercept and fulfill requests</li>
-        <li>Returning mock JSON responses with <code>route.fulfill()</code></li>
-        <li>Modifying requests in flight with <code>route.continue()</code></li>
-        <li>Aborting requests with <code>route.abort()</code></li>
-        <li>Waiting for network events: <code>page.waitForResponse()</code></li>
-        <li>HAR recording and replay for snapshot testing</li>
-        <li>API testing with <code>request</code> fixture (no browser needed)</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/network & /docs/mock</div>
-            <div class="resource-desc">Both pages — network and mock are complementary, read them together</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/pom</div>
+              <div class="resource-desc">Official POM guide with full example — read then immediately rewrite it from
+                scratch</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-repo">Repo</span>
+            <div class="resource-info">
+              <div class="resource-name">github.com/microsoft/playwright/tree/main/examples</div>
+              <div class="resource-desc">Study the todomvc example — best real-world POM reference from the Playwright
+                team itself</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-practice">Practice</span>
+            <div class="resource-info">
+              <div class="resource-name">Build POM for saucedemo.com</div>
+              <div class="resource-desc">Login page, Inventory page, Cart page, Checkout flow — 4 page objects, 8 tests
+              </div>
+            </div>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-practice">Practice</span>
-          <div class="resource-info">
-            <div class="resource-name">Mock a REST API on jsonplaceholder.typicode.com</div>
-            <div class="resource-desc">Intercept GET /posts, return 3 custom items, assert UI renders them correctly</div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
           </div>
+          <ul class="review-questions">
+            <li>What goes in a Page Object vs what stays in the test file?</li>
+            <li>How do you integrate POM classes with Playwright fixtures?</li>
+            <li>What's the risk of putting assertions inside page objects?</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+    <!-- Session 7 -->
+    <div class="session" id="session-7" data-category="api" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">07</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Network Interception & Mocking</div>
+          <div class="session-tags">
+            <span class="tag practice">Pattern</span>
+            <span class="tag">Network</span>
+            <span class="tag">API</span>
+          </div>
         </div>
-        <ul class="review-questions">
-          <li>What's the difference between <code>route.fulfill()</code> and <code>route.continue()</code>?</li>
-          <li>When would you use HAR recording instead of manual mocking?</li>
-          <li>How do you test an empty-state UI when the API normally returns data?</li>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Intercept, mock, modify, and spy on network requests. This skill lets you test UI states
+          that are hard to reproduce with a real backend.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li><code>page.route()</code> to intercept and fulfill requests</li>
+          <li>Returning mock JSON responses with <code>route.fulfill()</code></li>
+          <li>Modifying requests in flight with <code>route.continue()</code></li>
+          <li>Aborting requests with <code>route.abort()</code></li>
+          <li>Waiting for network events: <code>page.waitForResponse()</code></li>
+          <li>HAR recording and replay for snapshot testing</li>
+          <li>API testing with <code>request</code> fixture (no browser needed)</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 8 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">08</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Authentication Strategies</div>
-        <div class="session-tags">
-          <span class="tag practice">Pattern</span>
-          <span class="tag">Auth</span>
-          <span class="tag">Performance</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Implement fast, reliable authentication in your test suite. Learn to reuse auth state across tests to eliminate slow repeated logins.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Storage state: saving and loading cookies + localStorage</li>
-        <li><code>page.context().storageState()</code> for saving session</li>
-        <li>Global setup file pattern for one-time login</li>
-        <li><code>storageState</code> in playwright.config.ts</li>
-        <li>Multiple user roles with multiple storage state files</li>
-        <li>API-based login (faster than UI login) for auth setup</li>
-        <li>Handling JWT tokens and session refresh</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/auth</div>
-            <div class="resource-desc">Full authentication strategies page — the "Reuse signed-in state" section is the key concept</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/network & /docs/mock</div>
+              <div class="resource-desc">Both pages — network and mock are complementary, read them together</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-practice">Practice</span>
+            <div class="resource-info">
+              <div class="resource-name">Mock a REST API on jsonplaceholder.typicode.com</div>
+              <div class="resource-desc">Intercept GET /posts, return 3 custom items, assert UI renders them correctly
+              </div>
+            </div>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-guide">Guide</span>
-          <div class="resource-info">
-            <div class="resource-name">"Playwright Authentication" — Testerops blog</div>
-            <div class="resource-desc">Search for this post — excellent comparison of all auth approaches with benchmarks</div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
           </div>
+          <ul class="review-questions">
+            <li>What's the difference between <code>route.fulfill()</code> and <code>route.continue()</code>?</li>
+            <li>When would you use HAR recording instead of manual mocking?</li>
+            <li>How do you test an empty-state UI when the API normally returns data?</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+    <!-- Session 8 -->
+    <div class="session" id="session-8" data-category="auth" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">08</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Authentication Strategies</div>
+          <div class="session-tags">
+            <span class="tag practice">Pattern</span>
+            <span class="tag">Auth</span>
+            <span class="tag">Performance</span>
+          </div>
         </div>
-        <ul class="review-questions">
-          <li>Why is API-based login faster than UI login for test setup?</li>
-          <li>How do you handle tests that need to run as two different user roles?</li>
-          <li>What gets saved in a storageState file — cookies only or more?</li>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Implement fast, reliable authentication in your test suite. Learn to reuse auth state
+          across tests to eliminate slow repeated logins.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Storage state: saving and loading cookies + localStorage</li>
+          <li><code>page.context().storageState()</code> for saving session</li>
+          <li>Global setup file pattern for one-time login</li>
+          <li><code>storageState</code> in playwright.config.ts</li>
+          <li>Multiple user roles with multiple storage state files</li>
+          <li>API-based login (faster than UI login) for auth setup</li>
+          <li>Handling JWT tokens and session refresh</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 9 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">09</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Waiting, Timeouts & Flake Prevention</div>
-        <div class="session-tags">
-          <span class="tag practice">Pattern</span>
-          <span class="tag">Reliability</span>
-          <span class="tag">Debugging</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Understand Playwright's timeout hierarchy and write tests that never use <code>waitForTimeout()</code>. Learn to diagnose and fix flaky tests systematically.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Timeout hierarchy: global → test → action → expect</li>
-        <li><code>page.waitForURL()</code>, <code>page.waitForLoadState()</code></li>
-        <li><code>locator.waitFor()</code> for explicit element waiting</li>
-        <li><code>page.waitForFunction()</code> for custom conditions</li>
-        <li>Why <code>waitForTimeout()</code> causes flakes — and alternatives</li>
-        <li>Retries with <code>test.retries</code> — when appropriate</li>
-        <li>Using <code>--trace on</code> to debug flakes</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/timeouts & /docs/navigations</div>
-            <div class="resource-desc">Navigation + timeout docs together explain 90% of timing issues</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/auth</div>
+              <div class="resource-desc">Full authentication strategies page — the "Reuse signed-in state" section is
+                the key concept</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-guide">Guide</span>
+            <div class="resource-info">
+              <div class="resource-name">"Playwright Authentication" — Testerops blog</div>
+              <div class="resource-desc">Search for this post — excellent comparison of all auth approaches with
+                benchmarks</div>
+            </div>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-guide">Guide</span>
-          <div class="resource-info">
-            <div class="resource-name">"Fixing Flaky Playwright Tests" — Playwright blog / GitHub blog</div>
-            <div class="resource-desc">Search for this article on playwright.dev/blog — first-party anti-flake strategies</div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
           </div>
+          <ul class="review-questions">
+            <li>Why is API-based login faster than UI login for test setup?</li>
+            <li>How do you handle tests that need to run as two different user roles?</li>
+            <li>What gets saved in a storageState file — cookies only or more?</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+    <!-- Session 9 -->
+    <div class="session" id="session-9" data-category="debug" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">09</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Waiting, Timeouts & Flake Prevention</div>
+          <div class="session-tags">
+            <span class="tag practice">Pattern</span>
+            <span class="tag">Reliability</span>
+            <span class="tag">Debugging</span>
+          </div>
         </div>
-        <ul class="review-questions">
-          <li>Name all 4 levels of the Playwright timeout hierarchy.</li>
-          <li>A test passes locally but fails in CI 30% of the time. What's your diagnostic process?</li>
-          <li>What's the correct alternative to <code>await page.waitForTimeout(2000)</code>?</li>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Understand Playwright's timeout hierarchy and write tests that never use
+          <code>waitForTimeout()</code>. Learn to diagnose and fix flaky tests systematically.
+        </div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Timeout hierarchy: global → test → action → expect</li>
+          <li><code>page.waitForURL()</code>, <code>page.waitForLoadState()</code></li>
+          <li><code>locator.waitFor()</code> for explicit element waiting</li>
+          <li><code>page.waitForFunction()</code> for custom conditions</li>
+          <li>Why <code>waitForTimeout()</code> causes flakes — and alternatives</li>
+          <li>Retries with <code>test.retries</code> — when appropriate</li>
+          <li>Using <code>--trace on</code> to debug flakes</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 10 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">10</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Debugging Tools & Trace Viewer</div>
-        <div class="session-tags">
-          <span class="tag practice">Tooling</span>
-          <span class="tag">Debug</span>
-          <span class="tag">Trace</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Become fluent with Playwright's debugging toolkit. After this session, a failing test is a puzzle you can always solve — not a mystery.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Playwright Inspector: <code>PWDEBUG=1</code> — step through tests live</li>
-        <li>Trace Viewer: recording, opening, and reading a trace</li>
-        <li>Screenshots on failure: <code>screenshot: 'only-on-failure'</code></li>
-        <li>Video recording configuration</li>
-        <li><code>page.pause()</code> for breakpoint-style debugging</li>
-        <li>UI Mode (<code>--ui</code>): live reload and trace viewer built in</li>
-        <li>VS Code Playwright extension — run, debug, pick locators</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/debug & /docs/trace-viewer</div>
-            <div class="resource-desc">Both are short — read then spend remaining time with hands-on trace recording</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/timeouts & /docs/navigations</div>
+              <div class="resource-desc">Navigation + timeout docs together explain 90% of timing issues</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-guide">Guide</span>
+            <div class="resource-info">
+              <div class="resource-name">"Fixing Flaky Playwright Tests" — Playwright blog / GitHub blog</div>
+              <div class="resource-desc">Search for this article on playwright.dev/blog — first-party anti-flake
+                strategies</div>
+            </div>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-video">Video</span>
-          <div class="resource-info">
-            <div class="resource-name">"Playwright Trace Viewer" — official Playwright YouTube channel</div>
-            <div class="resource-desc">~10 min demo of the trace viewer — fastest way to see what's possible</div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
           </div>
+          <ul class="review-questions">
+            <li>Name all 4 levels of the Playwright timeout hierarchy.</li>
+            <li>A test passes locally but fails in CI 30% of the time. What's your diagnostic process?</li>
+            <li>What's the correct alternative to <code>await page.waitForTimeout(2000)</code>?</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Milestone check — you're halfway!</span>
+    <!-- Session 10 -->
+    <div class="session" id="session-10" data-category="debug" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">10</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Debugging Tools & Trace Viewer</div>
+          <div class="session-tags">
+            <span class="tag practice">Tooling</span>
+            <span class="tag">Debug</span>
+            <span class="tag">Trace</span>
+          </div>
         </div>
-        <ul class="review-questions">
-          <li>Walk through the trace viewer: what 5 types of info can you see in a trace?</li>
-          <li>What's the fastest way to pick a locator for an element you've never seen before?</li>
-          <li>At this point you should be able to: write tests, use locators, assert, structure with POM, handle auth, mock APIs, and debug failures. What's the weakest of these for you?</li>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Become fluent with Playwright's debugging toolkit. After this session, a failing test is
+          a puzzle you can always solve — not a mystery.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Playwright Inspector: <code>PWDEBUG=1</code> — step through tests live</li>
+          <li>Trace Viewer: recording, opening, and reading a trace</li>
+          <li>Screenshots on failure: <code>screenshot: 'only-on-failure'</code></li>
+          <li>Video recording configuration</li>
+          <li><code>page.pause()</code> for breakpoint-style debugging</li>
+          <li>UI Mode (<code>--ui</code>): live reload and trace viewer built in</li>
+          <li>VS Code Playwright extension — run, debug, pick locators</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- ===== PHASE 3 ===== -->
-  <div class="phase-header">
-    <div class="phase-badge phase-3">Phase 3</div>
-    <div class="phase-title">Advanced Capabilities</div>
-    <div class="phase-line"></div>
-  </div>
-
-  <!-- Session 11 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">11</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Visual Regression Testing</div>
-        <div class="session-tags">
-          <span class="tag advanced">Advanced</span>
-          <span class="tag">Screenshots</span>
-          <span class="tag">Visual</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Add screenshot comparison to your test suite to catch visual regressions. Understand thresholds, masking, and managing snapshot updates across platforms.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li><code>expect(page).toHaveScreenshot()</code> — full page snapshots</li>
-        <li><code>expect(locator).toHaveScreenshot()</code> — component-level</li>
-        <li>Snapshot update workflow: <code>--update-snapshots</code></li>
-        <li>Threshold and pixel diff options</li>
-        <li>Masking dynamic content with <code>mask</code> option</li>
-        <li>Cross-platform snapshot challenges (OS-specific rendering)</li>
-        <li>Integrating with Percy or Argos for cloud-based diffs</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/test-snapshots</div>
-            <div class="resource-desc">Short, focused page — read fully, then implement on a real UI component</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/debug & /docs/trace-viewer</div>
+              <div class="resource-desc">Both are short — read then spend remaining time with hands-on trace recording
+              </div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-video">Video</span>
+            <div class="resource-info">
+              <div class="resource-name">"Playwright Trace Viewer" — official Playwright YouTube channel</div>
+              <div class="resource-desc">~10 min demo of the trace viewer — fastest way to see what's possible</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Milestone check — you're halfway!</span>
+          </div>
+          <ul class="review-questions">
+            <li>Walk through the trace viewer: what 5 types of info can you see in a trace?</li>
+            <li>What's the fastest way to pick a locator for an element you've never seen before?</li>
+            <li>At this point you should be able to: write tests, use locators, assert, structure with POM, handle auth,
+              mock APIs, and debug failures. What's the weakest of these for you?</li>
+          </ul>
         </div>
-        <ul class="review-questions">
-          <li>How do you handle elements with dynamic content (timestamps, ads) in visual tests?</li>
-          <li>What are the tradeoffs of storing snapshots in git vs a cloud service?</li>
-          <li>When would visual testing add more value than assertion-based testing?</li>
+      </div>
+    </div>
+
+    <!-- ===== PHASE 3 ===== -->
+    <div class="phase-header">
+      <div class="phase-badge phase-3">Phase 3</div>
+      <div class="phase-title">Advanced Capabilities</div>
+      <div class="phase-line"></div>
+    </div>
+
+    <!-- Session 11 -->
+    <div class="session" id="session-11" data-category="core" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">11</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Visual Regression Testing</div>
+          <div class="session-tags">
+            <span class="tag advanced">Advanced</span>
+            <span class="tag">Screenshots</span>
+            <span class="tag">Visual</span>
+          </div>
+        </div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Add screenshot comparison to your test suite to catch visual regressions. Understand
+          thresholds, masking, and managing snapshot updates across platforms.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li><code>expect(page).toHaveScreenshot()</code> — full page snapshots</li>
+          <li><code>expect(locator).toHaveScreenshot()</code> — component-level</li>
+          <li>Snapshot update workflow: <code>--update-snapshots</code></li>
+          <li>Threshold and pixel diff options</li>
+          <li>Masking dynamic content with <code>mask</code> option</li>
+          <li>Cross-platform snapshot challenges (OS-specific rendering)</li>
+          <li>Integrating with Percy or Argos for cloud-based diffs</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 12 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">12</div>
-      <div class="session-title-wrap">
-        <div class="session-title">API Testing with Playwright</div>
-        <div class="session-tags">
-          <span class="tag advanced">Advanced</span>
-          <span class="tag">API</span>
-          <span class="tag">REST</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Use Playwright's APIRequestContext to test REST APIs directly — no browser needed. Combine API + UI tests for full integration testing.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li><code>request</code> fixture for API-only tests</li>
-        <li>GET, POST, PUT, DELETE with <code>request.get/post/put/delete()</code></li>
-        <li>Setting headers, auth tokens, and base URL</li>
-        <li>Parsing JSON responses and asserting status codes</li>
-        <li>Using API calls to seed test data before UI tests</li>
-        <li>Using API calls to clean up after UI tests</li>
-        <li><code>playwright.request.newContext()</code> for standalone API contexts</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/api-testing</div>
-            <div class="resource-desc">Read fully. Then practice against reqres.in — a free hosted REST API for testing</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/test-snapshots</div>
+              <div class="resource-desc">Short, focused page — read fully, then implement on a real UI component</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
+          </div>
+          <ul class="review-questions">
+            <li>How do you handle elements with dynamic content (timestamps, ads) in visual tests?</li>
+            <li>What are the tradeoffs of storing snapshots in git vs a cloud service?</li>
+            <li>When would visual testing add more value than assertion-based testing?</li>
+          </ul>
         </div>
-        <ul class="review-questions">
-          <li>What's the advantage of API-based test data setup over UI-based?</li>
-          <li>How do you share authentication state between API and browser contexts?</li>
-          <li>Write a test that creates a user via API, then verifies they appear in the UI.</li>
+      </div>
+    </div>
+
+    <!-- Session 12 -->
+    <div class="session" id="session-12" data-category="api" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">12</div>
+        <div class="session-title-wrap">
+          <div class="session-title">API Testing with Playwright</div>
+          <div class="session-tags">
+            <span class="tag advanced">Advanced</span>
+            <span class="tag">API</span>
+            <span class="tag">REST</span>
+          </div>
+        </div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Use Playwright's APIRequestContext to test REST APIs directly — no browser needed.
+          Combine API + UI tests for full integration testing.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li><code>request</code> fixture for API-only tests</li>
+          <li>GET, POST, PUT, DELETE with <code>request.get/post/put/delete()</code></li>
+          <li>Setting headers, auth tokens, and base URL</li>
+          <li>Parsing JSON responses and asserting status codes</li>
+          <li>Using API calls to seed test data before UI tests</li>
+          <li>Using API calls to clean up after UI tests</li>
+          <li><code>playwright.request.newContext()</code> for standalone API contexts</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 13 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">13</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Parallel Execution & Test Configuration</div>
-        <div class="session-tags">
-          <span class="tag advanced">Advanced</span>
-          <span class="tag">Performance</span>
-          <span class="tag">Config</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Configure Playwright for fast parallel test runs. Understand workers, sharding, and projects — the trio that controls test execution speed.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Workers: <code>fullyParallel</code>, <code>workers</code> config options</li>
-        <li>Test isolation and state management with parallel tests</li>
-        <li>Projects: running the same suite across multiple browsers</li>
-        <li>Named projects for different environments (dev, staging, prod)</li>
-        <li>Sharding for CI: <code>--shard=1/4</code> to split across machines</li>
-        <li>Test tagging and filtering: <code>--grep</code>, <code>test.tag</code></li>
-        <li>Slow tests annotation and retry strategy per project</li>
-      </ul>
-
-      <div class="section-grid">
-      </div>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/test-parallel & /docs/test-projects</div>
-            <div class="resource-desc">Read both — they're short. Then configure a 3-project setup (chrome/firefox/webkit) locally</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/api-testing</div>
+              <div class="resource-desc">Read fully. Then practice against reqres.in — a free hosted REST API for
+                testing</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
+          </div>
+          <ul class="review-questions">
+            <li>What's the advantage of API-based test data setup over UI-based?</li>
+            <li>How do you share authentication state between API and browser contexts?</li>
+            <li>Write a test that creates a user via API, then verifies they appear in the UI.</li>
+          </ul>
         </div>
-        <ul class="review-questions">
-          <li>What makes two tests "safe" to run in parallel vs unsafe?</li>
-          <li>How does sharding differ from running with multiple workers?</li>
-          <li>When would you create separate Playwright projects for the same test suite?</li>
+      </div>
+    </div>
+
+    <!-- Session 13 -->
+    <div class="session" id="session-13" data-category="ci" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">13</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Parallel Execution & Test Configuration</div>
+          <div class="session-tags">
+            <span class="tag advanced">Advanced</span>
+            <span class="tag">Performance</span>
+            <span class="tag">Config</span>
+          </div>
+        </div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Configure Playwright for fast parallel test runs. Understand workers, sharding, and
+          projects — the trio that controls test execution speed.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Workers: <code>fullyParallel</code>, <code>workers</code> config options</li>
+          <li>Test isolation and state management with parallel tests</li>
+          <li>Projects: running the same suite across multiple browsers</li>
+          <li>Named projects for different environments (dev, staging, prod)</li>
+          <li>Sharding for CI: <code>--shard=1/4</code> to split across machines</li>
+          <li>Test tagging and filtering: <code>--grep</code>, <code>test.tag</code></li>
+          <li>Slow tests annotation and retry strategy per project</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 14 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">14</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Handling Complex UI Scenarios</div>
-        <div class="session-tags">
-          <span class="tag advanced">Advanced</span>
-          <span class="tag">iFrames</span>
-          <span class="tag">Dialogs</span>
-          <span class="tag">Tabs</span>
+        <div class="section-grid">
         </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Handle the tricky UI scenarios that trip up most beginners: iframes, popups, new tabs, alert dialogs, file downloads, and shadow DOM.</div>
 
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>iFrames: <code>frameLocator()</code> — the modern approach</li>
-        <li>Popups and new tabs: <code>page.waitForEvent('popup')</code></li>
-        <li>Alert/confirm/prompt dialogs: <code>page.on('dialog', ...)</code></li>
-        <li>File downloads: <code>page.waitForEvent('download')</code></li>
-        <li>Shadow DOM: <code>locator.shadowRoot()</code> vs CSS piercing</li>
-        <li>Multi-page workflows across browser contexts</li>
-        <li>Handling infinite scroll and lazy-loaded content</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/frames & /docs/pages</div>
-            <div class="resource-desc">iFrame and multi-page docs — both needed for this session</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/test-parallel & /docs/test-projects</div>
+              <div class="resource-desc">Read both — they're short. Then configure a 3-project setup
+                (chrome/firefox/webkit) locally</div>
+            </div>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-practice">Practice</span>
-          <div class="resource-info">
-            <div class="resource-name">the-internet.herokuapp.com</div>
-            <div class="resource-desc">A treasure chest: iFrames, alerts, auth, drag/drop, dynamic loading — each as a separate challenge</div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
           </div>
+          <ul class="review-questions">
+            <li>What makes two tests "safe" to run in parallel vs unsafe?</li>
+            <li>How does sharding differ from running with multiple workers?</li>
+            <li>When would you create separate Playwright projects for the same test suite?</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+    <!-- Session 14 -->
+    <div class="session" id="session-14" data-category="debug" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">14</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Handling Complex UI Scenarios</div>
+          <div class="session-tags">
+            <span class="tag advanced">Advanced</span>
+            <span class="tag">iFrames</span>
+            <span class="tag">Dialogs</span>
+            <span class="tag">Tabs</span>
+          </div>
         </div>
-        <ul class="review-questions">
-          <li>What's the correct way to interact with an element inside a nested iframe?</li>
-          <li>How do you assert that a download completed and check the filename?</li>
-          <li>What's the event pattern for handling a link that opens in a new tab?</li>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Handle the tricky UI scenarios that trip up most beginners: iframes, popups, new tabs,
+          alert dialogs, file downloads, and shadow DOM.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>iFrames: <code>frameLocator()</code> — the modern approach</li>
+          <li>Popups and new tabs: <code>page.waitForEvent('popup')</code></li>
+          <li>Alert/confirm/prompt dialogs: <code>page.on('dialog', ...)</code></li>
+          <li>File downloads: <code>page.waitForEvent('download')</code></li>
+          <li>Shadow DOM: <code>locator.shadowRoot()</code> vs CSS piercing</li>
+          <li>Multi-page workflows across browser contexts</li>
+          <li>Handling infinite scroll and lazy-loaded content</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 15 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">15</div>
-      <div class="session-title-wrap">
-        <div class="session-title">CI/CD Integration</div>
-        <div class="session-tags">
-          <span class="tag advanced">Advanced</span>
-          <span class="tag">CI/CD</span>
-          <span class="tag">GitHub Actions</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Ship a working GitHub Actions workflow that runs Playwright tests on every PR. Understand artifacts, caching, and environment variable handling in CI.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Playwright official GitHub Actions YAML template</li>
-        <li>Installing browsers in CI: <code>npx playwright install --with-deps</code></li>
-        <li>Caching browser binaries for faster CI runs</li>
-        <li>Uploading HTML reports and traces as artifacts</li>
-        <li>Environment variables: <code>.env</code> locally vs CI secrets</li>
-        <li>Sharding across multiple CI machines</li>
-        <li>Configuring for GitLab CI, CircleCI, Azure DevOps (overview)</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/ci-intro & /docs/ci</div>
-            <div class="resource-desc">The CI intro is a 5-minute setup; the full CI page covers all providers</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/frames & /docs/pages</div>
+              <div class="resource-desc">iFrame and multi-page docs — both needed for this session</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-practice">Practice</span>
+            <div class="resource-info">
+              <div class="resource-name">the-internet.herokuapp.com</div>
+              <div class="resource-desc">A treasure chest: iFrames, alerts, auth, drag/drop, dynamic loading — each as a
+                separate challenge</div>
+            </div>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-practice">Practice</span>
-          <div class="resource-info">
-            <div class="resource-name">Create a GitHub repo and push a working Actions workflow</div>
-            <div class="resource-desc">Real CI run before this session ends — don't just read the YAML, run it</div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
           </div>
+          <ul class="review-questions">
+            <li>What's the correct way to interact with an element inside a nested iframe?</li>
+            <li>How do you assert that a download completed and check the filename?</li>
+            <li>What's the event pattern for handling a link that opens in a new tab?</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+    <!-- Session 15 -->
+    <div class="session" id="session-15" data-category="ci" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">15</div>
+        <div class="session-title-wrap">
+          <div class="session-title">CI/CD Integration</div>
+          <div class="session-tags">
+            <span class="tag advanced">Advanced</span>
+            <span class="tag">CI/CD</span>
+            <span class="tag">GitHub Actions</span>
+          </div>
         </div>
-        <ul class="review-questions">
-          <li>Why do Playwright tests need <code>--with-deps</code> in CI but not locally?</li>
-          <li>Where do you store sensitive test credentials in GitHub Actions?</li>
-          <li>How do you make the HTML report accessible after a CI failure?</li>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Ship a working GitHub Actions workflow that runs Playwright tests on every PR. Understand
+          artifacts, caching, and environment variable handling in CI.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Playwright official GitHub Actions YAML template</li>
+          <li>Installing browsers in CI: <code>npx playwright install --with-deps</code></li>
+          <li>Caching browser binaries for faster CI runs</li>
+          <li>Uploading HTML reports and traces as artifacts</li>
+          <li>Environment variables: <code>.env</code> locally vs CI secrets</li>
+          <li>Sharding across multiple CI machines</li>
+          <li>Configuring for GitLab CI, CircleCI, Azure DevOps (overview)</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- ===== PHASE 4 ===== -->
-  <div class="phase-header">
-    <div class="phase-badge phase-4">Phase 4</div>
-    <div class="phase-title">Professional & Capstone</div>
-    <div class="phase-line"></div>
-  </div>
-
-  <!-- Session 16 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">16</div>
-      <div class="session-title-wrap">
-        <div class="session-title">TypeScript Patterns for Test Engineers</div>
-        <div class="session-tags">
-          <span class="tag">TypeScript</span>
-          <span class="tag">Types</span>
-          <span class="tag">DX</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Apply TypeScript to make your test suite type-safe and self-documenting. Focus on the subset of TypeScript that matters most for test engineering.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Typing fixtures with <code>test.extend&lt;{}&gt;()</code></li>
-        <li>Interfaces for Page Object classes and data models</li>
-        <li>Enums and union types for test data constants</li>
-        <li>Generic helpers for repeated assertion patterns</li>
-        <li>Utility types: <code>Partial&lt;&gt;</code>, <code>Pick&lt;&gt;</code> for test data builders</li>
-        <li>tsconfig best practices for test projects</li>
-        <li>Type-safe environment variables with a config module</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-guide">Guide</span>
-          <div class="resource-info">
-            <div class="resource-name">"TypeScript for Playwright" — Stefan Judis / Checkly blog</div>
-            <div class="resource-desc">Search "TypeScript Playwright test patterns" — several excellent community posts on this</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/ci-intro & /docs/ci</div>
+              <div class="resource-desc">The CI intro is a 5-minute setup; the full CI page covers all providers</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-practice">Practice</span>
+            <div class="resource-info">
+              <div class="resource-name">Create a GitHub repo and push a working Actions workflow</div>
+              <div class="resource-desc">Real CI run before this session ends — don't just read the YAML, run it</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
+          </div>
+          <ul class="review-questions">
+            <li>Why do Playwright tests need <code>--with-deps</code> in CI but not locally?</li>
+            <li>Where do you store sensitive test credentials in GitHub Actions?</li>
+            <li>How do you make the HTML report accessible after a CI failure?</li>
+          </ul>
         </div>
-        <ul class="review-questions">
-          <li>How do you type a custom fixture that returns a logged-in page object?</li>
-          <li>Write a <code>UserData</code> interface with 5 fields for a test data builder.</li>
-          <li>What's the benefit of typing your environment config vs using <code>process.env.X</code> directly?</li>
+      </div>
+    </div>
+
+    <!-- ===== PHASE 4 ===== -->
+    <div class="phase-header">
+      <div class="phase-badge phase-4">Phase 4</div>
+      <div class="phase-title">Professional & Capstone</div>
+      <div class="phase-line"></div>
+    </div>
+
+    <!-- Session 16 -->
+    <div class="session" id="session-16" data-category="typescript" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">16</div>
+        <div class="session-title-wrap">
+          <div class="session-title">TypeScript Patterns for Test Engineers</div>
+          <div class="session-tags">
+            <span class="tag">TypeScript</span>
+            <span class="tag">Types</span>
+            <span class="tag">DX</span>
+          </div>
+        </div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Apply TypeScript to make your test suite type-safe and self-documenting. Focus on the
+          subset of TypeScript that matters most for test engineering.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Typing fixtures with <code>test.extend&lt;{}&gt;()</code></li>
+          <li>Interfaces for Page Object classes and data models</li>
+          <li>Enums and union types for test data constants</li>
+          <li>Generic helpers for repeated assertion patterns</li>
+          <li>Utility types: <code>Partial&lt;&gt;</code>, <code>Pick&lt;&gt;</code> for test data builders</li>
+          <li>tsconfig best practices for test projects</li>
+          <li>Type-safe environment variables with a config module</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 17 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">17</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Performance Testing & Accessibility</div>
-        <div class="session-tags">
-          <span class="tag">a11y</span>
-          <span class="tag">Performance</span>
-          <span class="tag">Axe</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Add accessibility and basic performance measurements to your test suite. These are force-multipliers that many teams overlook until it's expensive to fix.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Accessibility testing with <code>@axe-core/playwright</code></li>
-        <li><code>checkA11y()</code> — configuring rules, disabling false positives</li>
-        <li>Performance metrics via Chrome DevTools Protocol (CDP)</li>
-        <li><code>page.evaluate(() =&gt; performance.timing)</code></li>
-        <li>Core Web Vitals: LCP, CLS, FID — measuring in tests</li>
-        <li>Lighthouse CLI integration for performance budgets</li>
-        <li>Network throttling with browser contexts</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-repo">Repo</span>
-          <div class="resource-info">
-            <div class="resource-name">github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright</div>
-            <div class="resource-desc">Official axe-playwright package — README has everything you need to get started</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-guide">Guide</span>
+            <div class="resource-info">
+              <div class="resource-name">"TypeScript for Playwright" — Stefan Judis / Checkly blog</div>
+              <div class="resource-desc">Search "TypeScript Playwright test patterns" — several excellent community
+                posts on this</div>
+            </div>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/accessibility-testing</div>
-            <div class="resource-desc">First-party accessibility testing guide added recently — concise and practical</div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
           </div>
+          <ul class="review-questions">
+            <li>How do you type a custom fixture that returns a logged-in page object?</li>
+            <li>Write a <code>UserData</code> interface with 5 fields for a test data builder.</li>
+            <li>What's the benefit of typing your environment config vs using <code>process.env.X</code> directly?</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+    <!-- Session 17 -->
+    <div class="session" id="session-17" data-category="core" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">17</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Performance Testing & Accessibility</div>
+          <div class="session-tags">
+            <span class="tag">a11y</span>
+            <span class="tag">Performance</span>
+            <span class="tag">Axe</span>
+          </div>
         </div>
-        <ul class="review-questions">
-          <li>What does <code>checkA11y</code> actually check — and what does it NOT check?</li>
-          <li>How would you set a performance budget (e.g., LCP under 2.5s) in a Playwright test?</li>
-          <li>What's one accessibility violation that automated tools always catch, and one they never catch?</li>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Add accessibility and basic performance measurements to your test suite. These are
+          force-multipliers that many teams overlook until it's expensive to fix.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Accessibility testing with <code>@axe-core/playwright</code></li>
+          <li><code>checkA11y()</code> — configuring rules, disabling false positives</li>
+          <li>Performance metrics via Chrome DevTools Protocol (CDP)</li>
+          <li><code>page.evaluate(() =&gt; performance.timing)</code></li>
+          <li>Core Web Vitals: LCP, CLS, FID — measuring in tests</li>
+          <li>Lighthouse CLI integration for performance budgets</li>
+          <li>Network throttling with browser contexts</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 18 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">18</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Reporting, Observability & Test Data</div>
-        <div class="session-tags">
-          <span class="tag">Reporting</span>
-          <span class="tag">Allure</span>
-          <span class="tag">Test Data</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Build professional-grade reporting and test data management. Learn to make test results readable for non-engineers and scale test data safely.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Built-in reporters: html, json, junit, dot, line</li>
-        <li>Configuring multiple reporters simultaneously</li>
-        <li>Allure Playwright reporter — installation and rich reports</li>
-        <li><code>test.info().attach()</code> — adding custom artifacts to reports</li>
-        <li>Test data strategies: static fixtures, factories, faker.js</li>
-        <li>Data isolation: unique data per test run (timestamps, UUIDs)</li>
-        <li>Cleaning up test data after runs</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/test-reporters</div>
-            <div class="resource-desc">Short page — configure 3 different reporters and compare the outputs</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-repo">Repo</span>
+            <div class="resource-info">
+              <div class="resource-name">github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright</div>
+              <div class="resource-desc">Official axe-playwright package — README has everything you need to get started
+              </div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/accessibility-testing</div>
+              <div class="resource-desc">First-party accessibility testing guide added recently — concise and practical
+              </div>
+            </div>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-repo">Repo</span>
-          <div class="resource-info">
-            <div class="resource-name">github.com/allure-framework/allure-playwright</div>
-            <div class="resource-desc">Allure Playwright — 5-min setup, professional-grade reports with history, steps, attachments</div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
           </div>
+          <ul class="review-questions">
+            <li>What does <code>checkA11y</code> actually check — and what does it NOT check?</li>
+            <li>How would you set a performance budget (e.g., LCP under 2.5s) in a Playwright test?</li>
+            <li>What's one accessibility violation that automated tools always catch, and one they never catch?</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+    <!-- Session 18 -->
+    <div class="session" id="session-18" data-category="core" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">18</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Reporting, Observability & Test Data</div>
+          <div class="session-tags">
+            <span class="tag">Reporting</span>
+            <span class="tag">Allure</span>
+            <span class="tag">Test Data</span>
+          </div>
         </div>
-        <ul class="review-questions">
-          <li>Why is unique test data per run important for parallel test execution?</li>
-          <li>How do you attach a screenshot with a custom name to an Allure report?</li>
-          <li>What's the difference between a JUnit reporter and an HTML reporter in CI context?</li>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Build professional-grade reporting and test data management. Learn to make test results
+          readable for non-engineers and scale test data safely.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Built-in reporters: html, json, junit, dot, line</li>
+          <li>Configuring multiple reporters simultaneously</li>
+          <li>Allure Playwright reporter — installation and rich reports</li>
+          <li><code>test.info().attach()</code> — adding custom artifacts to reports</li>
+          <li>Test data strategies: static fixtures, factories, faker.js</li>
+          <li>Data isolation: unique data per test run (timestamps, UUIDs)</li>
+          <li>Cleaning up test data after runs</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 19 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">19</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Component Testing & Playwright Experimental</div>
-        <div class="session-tags">
-          <span class="tag">Components</span>
-          <span class="tag">React</span>
-          <span class="tag">Experimental</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Explore Playwright's component testing for React/Vue/Svelte. Understand when to use component tests vs E2E and how they complement each other.</div>
-
-      <div class="section-label">Topics (45 min)</div>
-      <ul class="topics-list">
-        <li>Component testing setup: <code>@playwright/experimental-ct-react</code></li>
-        <li>Mounting components: <code>mount()</code> fixture</li>
-        <li>Passing props, slots, and event handlers in tests</li>
-        <li>Component vs E2E: the testing trophy applied to Playwright</li>
-        <li>When component testing beats Storybook testing</li>
-        <li>Browser extension testing overview</li>
-        <li>Playwright's roadmap and upcoming features (check release notes)</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-docs">Docs</span>
-          <div class="resource-info">
-            <div class="resource-name">playwright.dev/docs/test-components</div>
-            <div class="resource-desc">Mark as experimental/evolving — understand the API but don't build critical infra on it yet</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/test-reporters</div>
+              <div class="resource-desc">Short page — configure 3 different reporters and compare the outputs</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-repo">Repo</span>
+            <div class="resource-info">
+              <div class="resource-name">github.com/allure-framework/allure-playwright</div>
+              <div class="resource-desc">Allure Playwright — 5-min setup, professional-grade reports with history,
+                steps, attachments</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Review</span>
-          <span class="review-time">Self-check questions</span>
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
+          </div>
+          <ul class="review-questions">
+            <li>Why is unique test data per run important for parallel test execution?</li>
+            <li>How do you attach a screenshot with a custom name to an Allure report?</li>
+            <li>What's the difference between a JUnit reporter and an HTML reporter in CI context?</li>
+          </ul>
         </div>
-        <ul class="review-questions">
-          <li>What's the key difference between a component test and a unit test for the same React component?</li>
-          <li>When would you choose component tests over E2E tests, and vice versa?</li>
-          <li>What does "experimental" mean for production adoption decisions?</li>
+      </div>
+    </div>
+
+    <!-- Session 19 -->
+    <div class="session" id="session-19" data-category="core" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">19</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Component Testing & Playwright Experimental</div>
+          <div class="session-tags">
+            <span class="tag">Components</span>
+            <span class="tag">React</span>
+            <span class="tag">Experimental</span>
+          </div>
+        </div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Explore Playwright's component testing for React/Vue/Svelte. Understand when to use
+          component tests vs E2E and how they complement each other.</div>
+
+        <div class="section-label">Topics (45 min)</div>
+        <ul class="topics-list">
+          <li>Component testing setup: <code>@playwright/experimental-ct-react</code></li>
+          <li>Mounting components: <code>mount()</code> fixture</li>
+          <li>Passing props, slots, and event handlers in tests</li>
+          <li>Component vs E2E: the testing trophy applied to Playwright</li>
+          <li>When component testing beats Storybook testing</li>
+          <li>Browser extension testing overview</li>
+          <li>Playwright's roadmap and upcoming features (check release notes)</li>
         </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- Session 20 -->
-  <div class="session" onclick="toggleSession(this)">
-    <div class="session-header">
-      <div class="session-num">20</div>
-      <div class="session-title-wrap">
-        <div class="session-title">Capstone: Full Test Suite End-to-End</div>
-        <div class="session-tags">
-          <span class="tag core">Capstone</span>
-          <span class="tag">Integration</span>
-          <span class="tag">Portfolio</span>
-        </div>
-      </div>
-      <div class="chevron">▾</div>
-    </div>
-    <div class="session-body">
-      <div class="section-label">Objective</div>
-      <div class="objective">Build a complete, professional test suite from scratch as your portfolio project — integrating every pattern learned across all 20 sessions.</div>
-
-      <div class="section-label">Build this in 45 min</div>
-      <ul class="topics-list">
-        <li>Target app: <strong>saucedemo.com</strong> or <strong>automationexercise.com</strong></li>
-        <li>Page Objects for all major pages</li>
-        <li>Custom fixtures for auth (stored state) and page objects</li>
-        <li>15+ tests: login, product search, cart, checkout, error states</li>
-        <li>API test: verify product count via API before UI assertion</li>
-        <li>Visual regression snapshot on the product page</li>
-        <li>GitHub Actions workflow that runs and publishes the HTML report</li>
-        <li>README documenting how to run locally and in CI</li>
-      </ul>
-
-      <div class="section-label">Resources</div>
-      <div class="resources-grid">
-        <div class="resource-item">
-          <span class="resource-type rt-repo">Repo</span>
-          <div class="resource-info">
-            <div class="resource-name">Your GitHub — push this publicly</div>
-            <div class="resource-desc">This is your Playwright portfolio artifact. Link it in your resume/LinkedIn.</div>
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-docs">Docs</span>
+            <div class="resource-info">
+              <div class="resource-name">playwright.dev/docs/test-components</div>
+              <div class="resource-desc">Mark as experimental/evolving — understand the API but don't build critical
+                infra on it yet</div>
+            </div>
           </div>
         </div>
-        <div class="resource-item">
-          <span class="resource-type rt-guide">Reference</span>
-          <div class="resource-info">
-            <div class="resource-name">All 19 previous sessions + playwright.dev</div>
-            <div class="resource-desc">You have everything you need. Build without looking things up first — check docs only when stuck.</div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Review</span>
+            <span class="review-time">Self-check questions</span>
           </div>
+          <ul class="review-questions">
+            <li>What's the key difference between a component test and a unit test for the same React component?</li>
+            <li>When would you choose component tests over E2E tests, and vice versa?</li>
+            <li>What does "experimental" mean for production adoption decisions?</li>
+          </ul>
         </div>
       </div>
+    </div>
 
-      <div class="review-block">
-        <div class="review-header">
-          <span class="review-badge">15-min Final Review</span>
-          <span class="review-time">🎉 You've completed 20 hours of Playwright</span>
+    <!-- Session 20 -->
+    <div class="session" id="session-20" data-category="core" onclick="toggleSession(this)">
+      <div class="session-header">
+        <div class="session-num">20</div>
+        <div class="session-title-wrap">
+          <div class="session-title">Capstone: Full Test Suite End-to-End</div>
+          <div class="session-tags">
+            <span class="tag core">Capstone</span>
+            <span class="tag">Integration</span>
+            <span class="tag">Portfolio</span>
+          </div>
         </div>
-        <ul class="review-questions">
-          <li>Which of the 4 phases felt strongest? Which was weakest — revisit that phase's sessions.</li>
-          <li>What would you add next? (Mobile testing with devices, Electron, BDD with Cucumber, cloud services like BrowserStack)</li>
-          <li>Push the capstone repo. You now have a professional Playwright portfolio piece.</li>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="session-body">
+        <div class="section-label">Objective</div>
+        <div class="objective">Build a complete, professional test suite from scratch as your portfolio project —
+          integrating every pattern learned across all 20 sessions.</div>
+
+        <div class="section-label">Build this in 45 min</div>
+        <ul class="topics-list">
+          <li>Target app: <strong>saucedemo.com</strong> or <strong>automationexercise.com</strong></li>
+          <li>Page Objects for all major pages</li>
+          <li>Custom fixtures for auth (stored state) and page objects</li>
+          <li>15+ tests: login, product search, cart, checkout, error states</li>
+          <li>API test: verify product count via API before UI assertion</li>
+          <li>Visual regression snapshot on the product page</li>
+          <li>GitHub Actions workflow that runs and publishes the HTML report</li>
+          <li>README documenting how to run locally and in CI</li>
         </ul>
+
+        <div class="section-label">Resources</div>
+        <div class="resources-grid">
+          <div class="resource-item">
+            <span class="resource-type rt-repo">Repo</span>
+            <div class="resource-info">
+              <div class="resource-name">Your GitHub — push this publicly</div>
+              <div class="resource-desc">This is your Playwright portfolio artifact. Link it in your resume/LinkedIn.
+              </div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <span class="resource-type rt-guide">Reference</span>
+            <div class="resource-info">
+              <div class="resource-name">All 19 previous sessions + playwright.dev</div>
+              <div class="resource-desc">You have everything you need. Build without looking things up first — check
+                docs only when stuck.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-block">
+          <div class="review-header">
+            <span class="review-badge">15-min Final Review</span>
+            <span class="review-time">🎉 You've completed 20 hours of Playwright</span>
+          </div>
+          <ul class="review-questions">
+            <li>Which of the 4 phases felt strongest? Which was weakest — revisit that phase's sessions.</li>
+            <li>What would you add next? (Mobile testing with devices, Electron, BDD with Cucumber, cloud services like
+              BrowserStack)</li>
+            <li>Push the capstone repo. You now have a professional Playwright portfolio piece.</li>
+          </ul>
+        </div>
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-note">
+        Tick off sessions as you complete them using the progress tracker above. Each session is self-contained — skip
+        forward if you have prior experience in a topic. All linked resources are free.
+      </div>
+      <div class="footer-tag">PLAYWRIGHT HUB</div>
+    </footer>
+
   </div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-note">
-      Tick off sessions as you complete them using the progress tracker above. Each session is self-contained — skip forward if you have prior experience in a topic. All linked resources are free.
-    </div>
-    <div class="footer-tag">PLAYWRIGHT MASTERY</div>
-  </footer>
-
-</div>
-
-<script>
-  function toggleSession(el) {
-    el.classList.toggle('open');
-  }
-
-  // Progress tracking
-  const STORAGE_KEY = 'playwright_plan_progress';
-  let completed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-
-  function renderDots() {
-    const container = document.getElementById('progressDots');
-    container.innerHTML = '';
-    for (let i = 1; i <= 20; i++) {
-      const dot = document.createElement('div');
-      dot.className = 'progress-dot' + (completed.includes(i) ? ' done' : '');
-      dot.textContent = String(i).padStart(2, '0');
-      dot.title = `Session ${i}`;
-      dot.onclick = () => toggleDot(i);
-      container.appendChild(dot);
+  <script>
+    function toggleSession(el) {
+      el.classList.toggle('open');
     }
-    updateBar();
-  }
 
-  function toggleDot(n) {
-    if (completed.includes(n)) {
-      completed = completed.filter(x => x !== n);
-    } else {
-      completed.push(n);
+    // Progress tracking
+    const STORAGE_KEY = 'playwright_plan_progress';
+    let completed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+    function renderDots() {
+      const container = document.getElementById('progressDots');
+      container.innerHTML = '';
+      for (let i = 1; i <= 20; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot' + (completed.includes(i) ? ' done' : '');
+        dot.textContent = String(i).padStart(2, '0');
+        dot.title = `Session ${i}`;
+        dot.onclick = () => toggleDot(i);
+        container.appendChild(dot);
+      }
+      updateBar();
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
+
+    function toggleDot(n) {
+      if (completed.includes(n)) {
+        completed = completed.filter(x => x !== n);
+      } else {
+        completed.push(n);
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
+      renderDots();
+    }
+
+    function updateBar() {
+      const pct = (completed.length / 20) * 100;
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progressText').textContent = `${completed.length} of 20 sessions complete`;
+      document.getElementById('hoursText').textContent = `${completed.length} / 20 hours`;
+    }
+
+    // Quick Access
+    document.querySelectorAll('.quick-link').forEach(button => {
+      button.addEventListener('click', () => {
+        const targetId = button.dataset.target;
+        const target = document.getElementById(targetId);
+        if (!target) return;
+
+        target.classList.add('open');
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // Search + Filter
+    const searchInput = document.getElementById('searchInput');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const sessions = document.querySelectorAll('.session');
+
+    let activeFilter = 'all';
+
+    function applyFilters() {
+      const query = searchInput.value.trim().toLowerCase();
+
+      sessions.forEach(session => {
+        const category = session.dataset.category || '';
+        const text = session.textContent.toLowerCase();
+
+        const matchesSearch = !query || text.includes(query);
+        const matchesFilter = activeFilter === 'all' || category === activeFilter;
+
+        session.classList.toggle('hidden', !(matchesSearch && matchesFilter));
+      });
+    }
+
+    searchInput.addEventListener('input', applyFilters);
+
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        activeFilter = button.dataset.filter;
+        applyFilters();
+      });
+    });
+
     renderDots();
-  }
-
-  function updateBar() {
-    const pct = (completed.length / 20) * 100;
-    document.getElementById('progressBar').style.width = pct + '%';
-    document.getElementById('progressText').textContent = `${completed.length} of 20 sessions complete`;
-    document.getElementById('hoursText').textContent = `${completed.length} / 20 hours`;
-  }
-
-  renderDots();
-</script>
+    applyFilters();
+  </script>
 </body>
+
 </html>
