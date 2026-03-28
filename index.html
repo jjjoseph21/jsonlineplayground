@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Playwright Mastery — 20-Hour Plan</title>
+  <title>Playwright Reference Hub</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap"
     rel="stylesheet">
@@ -695,6 +695,16 @@
     .session.hidden {
       display: none;
     }
+
+    .pattern-block {
+      border-left: 3px solid var(--accent);
+      background: linear-gradient(135deg, rgba(0, 229, 160, 0.05), transparent);
+    }
+
+    .highlight {
+      box-shadow: 0 0 0 2px var(--accent);
+      transition: box-shadow 0.3s ease;
+    }
   </style>
 </head>
 
@@ -759,6 +769,21 @@
       </div>
     </div>
 
+    <div class="quick-access-section">
+      <div class="quick-access-title">Common Tasks</div>
+
+      <div class="quick-access-grid">
+        <button class="quick-link" data-target="locator-patterns">Find a locator</button>
+        <button class="quick-link" data-target="date-patterns">Handle date picker</button>
+        <button class="quick-link" data-target="wait-patterns">Wait for element</button>
+        <button class="quick-link" data-target="flaky-test-patterns">Fix flaky test</button>
+        <button class="quick-link" data-target="auth-state-patterns">Save auth state</button>
+        <button class="quick-link" data-target="mock-api-patterns">Mock API</button>
+        <button class="quick-link" data-target="debug-failure-patterns">Debug failure</button>
+        <button class="quick-link" data-target="ci-patterns">Run in CI</button>
+      </div>
+    </div>
+
     <!-- Search / Filter -->
     <div class="toolbox-section">
       <div class="toolbox-header">
@@ -801,6 +826,80 @@
       <div class="phase-title">Foundations & Core Concepts</div>
       <div class="phase-line"></div>
     </div>
+
+    <div id="locator-patterns" class="quick-access-section pattern-block">
+      <div class="quick-access-title">Locator Patterns</div>
+
+      <pre>
+/* Best Practice Hierarchy */
+getByRole('button', { name: 'Submit' })
+getByLabel('Email')
+getByText('Confirm Order')
+
+/* Fallback */
+locator('[data-testid="submit-btn"]')
+
+/* Avoid when possible */
+locator('.btn.primary')
+locator('//div[3]/button[2]')
+</pre>
+    </div>
+
+    <div id="date-patterns" class="quick-access-section pattern-block">
+      <div class="quick-access-title">Date / Time Handling</div>
+
+      <pre>
+/* Add 3 days */
+const future = new Date();
+future.setDate(future.getDate() + 3);
+
+/* Round to nearest 15 minutes */
+let minutes = future.getMinutes();
+let rounded = Math.round(minutes / 15) * 15;
+
+if (rounded === 60) {
+  rounded = 0;
+  future.setHours(future.getHours() + 1);
+}
+
+/* Handle midnight rollover */
+if (future.getHours() === 0 && rounded === 0) {
+  future.setDate(future.getDate() + 1);
+}
+
+/* Format (MM/DD/YYYY) */
+const date = future.toLocaleDateString('en-US');
+
+/* Format time */
+const time = `${future.getHours()}:${String(rounded).padStart(2,'0')}`;
+</pre>
+    </div>
+
+    <div id="wait-patterns" class="quick-access-section pattern-block">
+      <div class="quick-access-title">Wait / Stability Patterns</div>
+
+      <pre>
+/* Wait for element */
+await expect(locator).toBeVisible();
+
+/* Wait for loading spinner to disappear */
+await expect(loadBox).not.toBeVisible();
+
+/* Wait for navigation */
+await page.waitForURL('**/orders');
+
+/* Wait for API response */
+await page.waitForResponse(resp =>
+  resp.url().includes('/api/orders') && resp.status() === 200
+);
+
+/* Avoid this */
+await page.waitForTimeout(2000); // ❌ flaky
+</pre>
+    </div>
+
+
+
 
     <!-- Session 1 -->
     <div class="session" id="session-1" data-category="core" onclick="toggleSession(this)">
@@ -2146,8 +2245,12 @@
         const target = document.getElementById(targetId);
         if (!target) return;
 
-        target.classList.add('open');
+        if (target.classList.contains('session')) {
+          target.classList.add('open');
+        }
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        target.classList.add('highlight');
+        setTimeout(() => target.classList.remove('highlight'), 1500);
       });
     });
 
