@@ -705,8 +705,24 @@
       box-shadow: 0 0 0 2px var(--accent);
       transition: box-shadow 0.3s ease;
     }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: auto;
+      font-size: 12px;
+      line-height: 1.6;
+    }
   </style>
 </head>
+
+<div class="principle">
+  <div class="principle-icon">⚡</div>
+  <div class="principle-text">
+    All examples use <strong>Playwright JavaScript</strong> syntax. 
+    Remove TypeScript-specific syntax (like <code>!</code>) if adapting from TS examples.
+  </div>
+</div>
 
 <body>
   <div class="container">
@@ -780,7 +796,7 @@
         <button class="quick-link" data-target="auth-state-patterns">Save auth state</button>
         <button class="quick-link" data-target="mock-api-patterns">Mock API</button>
         <button class="quick-link" data-target="debug-failure-patterns">Debug failure</button>
-        <button class="quick-link" data-target="ci-patterns">Run in CI</button>
+        <button class="quick-link" data-target="ci-patterns">Run in CI</button>  
       </div>
     </div>
 
@@ -893,13 +909,434 @@ await page.waitForResponse(resp =>
   resp.url().includes('/api/orders') && resp.status() === 200
 );
 
+/* Wait for specific state (not just visibility) */
+await expect(locator).toHaveText('Completed');
+
+/* Wait for count */
+await expect(rows).toHaveCount(10);
+
 /* Avoid this */
 await page.waitForTimeout(2000); // ❌ flaky
 </pre>
     </div>
 
+    <div id="flaky-test-patterns" class="quick-access-section pattern-block">
+      <div class="quick-access-title">Fix Flaky Test Patterns</div>
 
+      <div class="section-label">Core Pattern</div>
+      <pre>
+/* Retry Until Stable */
+const chart = page.locator('#revenue-chart');
 
+await expect(async () => {
+  await expect(chart).toBeVisible();
+  await expect(chart).toHaveAttribute('data-rendered', 'true');
+}).toPass({
+  intervals: [1000, 2000, 5000],
+  timeout: 30000
+});
+
+/* Wait for Full Page Stability */
+await page.waitForLoadState('load');
+await page.waitForLoadState('networkidle');
+
+/* Wait for Spinner / Overlay to Disappear */
+await page.locator('.loading-spinner').waitFor({ state: 'hidden', timeout: 10000 });
+</pre>
+
+      <div class="section-label">Anti-Pattern</div>
+      <pre>
+/* Avoid This */
+await page.waitForTimeout(3000); // ❌ flaky
+</pre>
+
+      <div class="section-label">Example Flow</div>
+      <pre>
+await page.goto('/dashboard');
+
+await FlakyFixer.waitForStability(page);
+
+await FlakyFixer.retryUntil(async () => {
+  const chart = page.locator('#revenue-chart');
+  await expect(chart).toBeVisible();
+  await expect(chart).toHaveAttribute('data-rendered', 'true');
+});
+
+await page.getByRole('button', { name: 'Generate Report' }).click();
+
+const spinner = page.locator('.loading-spinner');
+await FlakyFixer.waitForVanished(spinner, 60_000);
+</pre>
+    </div>
+
+    <div id="auth-state-patterns" class="quick-access-section pattern-block">
+      <div class="quick-access-title">Auth / Storage State Patterns</div>
+
+      <div class="section-label">Core Pattern</div>
+      <pre>
+/* Save signed-in state once */
+await page.goto('/login');
+await page.getByLabel('Email').fill(process.env.USER_EMAIL);
+await page.getByLabel('Password').fill(process.env.USER_PASSWORD);
+await page.getByRole('button', { name: 'Sign in' }).click();
+
+await expect(page).toHaveURL(/dashboard|home/);
+await page.context().storageState({ path: 'playwright/.auth/user.json' });
+</pre>
+
+      <div class="section-label">Reuse Pattern</div>
+      <pre>
+use: {
+  storageState: 'playwright/.auth/user.json'
+}
+</pre>
+
+      <div class="section-label">Multi-User Pattern</div>
+      <pre>
+/* Admin project */
+{
+  name: 'admin',
+  use: { storageState: 'playwright/.auth/admin.json' }
+}
+
+/* Standard user project */
+{
+  name: 'user',
+  use: { storageState: 'playwright/.auth/user.json' }
+}
+</pre>
+
+      <div class="section-label">API Login Pattern</div>
+      <pre>
+/* Faster than UI login when supported */
+const requestContext = await request.newContext();
+
+const response = await requestContext.post('/api/login', {
+  data: {
+    email: process.env.USER_EMAIL,
+    password: process.env.USER_PASSWORD
+  }
+});
+
+await expect(response).toBeOK();
+</pre>
+
+      <div class="section-label">Anti-Pattern</div>
+      <pre>
+/* Avoid logging in through the UI in every test */
+test('every test logs in from scratch', async ({ page }) => {
+  await page.goto('/login');
+  ...
+}); // ❌ slow and flaky
+</pre>
+
+      <div class="section-label">Example Flow</div>
+      <pre>
+/* global.setup.js */
+import { chromium, expect } from '@playwright/test';
+
+export default async function globalSetup() {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+
+  await page.goto('/login');
+  await page.getByLabel('Email').fill(process.env.USER_EMAIL);
+  await page.getByLabel('Password').fill(process.env.USER_PASSWORD!);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await expect(page).toHaveURL(/dashboard|home/);
+  await page.context().storageState({ path: 'playwright/.auth/user.json' });
+
+  await browser.close();
+}
+</pre>
+    </div>
+
+    <div id="mock-api-patterns" class="quick-access-section pattern-block">
+      <div class="quick-access-title">Mock API Patterns</div>
+
+      <div class="section-label">Core Pattern</div>
+      <pre>
+/* Mock a successful API response */
+await page.route('**/api/v1/menu**', async route => {
+  await route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      items: [
+        { id: 1, name: 'Turkey Sandwich' },
+        { id: 2, name: 'Chicken Wrap' }
+      ]
+    })
+  });
+});
+</pre>
+
+      <div class="section-label">Empty State Pattern</div>
+      <pre>
+/* Force empty results */
+await page.route('**/api/v1/menu**', async route => {
+  await route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ items: [] })
+  });
+});
+</pre>
+
+      <div class="section-label">Error State Pattern</div>
+      <pre>
+/* Simulate server failure */
+await page.route('**/api/v1/menu**', async route => {
+  await route.fulfill({
+    status: 500,
+    contentType: 'application/json',
+    body: JSON.stringify({ message: 'Internal Server Error' })
+  });
+});
+</pre>
+
+      <div class="section-label">Spy / Wait Pattern</div>
+      <pre>
+/* Wait for a real API response */
+const response = await page.waitForResponse(resp =>
+  resp.url().includes('/api/v1/menu') && resp.status() === 200
+);
+</pre>
+
+      <div class="section-label">Anti-Pattern</div>
+      <pre>
+/* Avoid depending on unstable backend data for UI state tests */
+// ❌ test passes or fails depending on real API data
+</pre>
+
+      <div class="section-label">Example Flow</div>
+      <pre>
+await page.route('**/api/v1/menu**', async route => {
+  await route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      items: [{ id: 1, name: 'Mocked Sandwich' }]
+    })
+  });
+});
+
+await page.goto('/menu');
+await expect(page.getByText('Mocked Sandwich')).toBeVisible();
+</pre>
+    </div>
+
+    <div id="debug-failure-patterns" class="quick-access-section pattern-block">
+      <div class="quick-access-title">Debug Failure Patterns</div>
+
+      <div class="section-label">Core Pattern</div>
+      <pre>
+/* Pause test execution and inspect live */
+await page.pause();
+
+/* Log current URL for context */
+console.log(await page.url());
+
+/* Capture visible page state */
+await page.screenshot({ path: 'debug-screenshot.png', fullPage: true });
+</pre>
+
+      <div class="section-label">Trace Viewer Pattern</div>
+      <pre>
+/* playwright.config.js */
+use: {
+  trace: 'on-first-retry',
+  screenshot: 'only-on-failure',
+  video: 'retain-on-failure'
+}
+
+/* Open trace after run */
+npx playwright show-trace trace.zip
+</pre>
+
+      <div class="section-label">Inspector Pattern</div>
+      <pre>
+/* Run in headed debug mode */
+npx playwright test --debug
+
+/* Or use UI mode */
+npx playwright test --ui
+</pre>
+
+      <div class="section-label">Targeted Logging Pattern</div>
+      <pre>
+/* Capture locator text */
+const bannerText = await page.locator('#editTrip p').textContent();
+console.log('Trip banner:', bannerText);
+
+/* Capture element count */
+const rows = page.locator('table tbody tr');
+console.log('Row count:', await rows.count());
+</pre>
+
+      <div class="section-label">Network / Console Pattern</div>
+      <pre>
+/* Browser console logging */
+page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
+
+/* Failed request logging */
+page.on('requestfailed', request => {
+  console.log('REQUEST FAILED:', request.url());
+});
+</pre>
+
+      <div class="section-label">Anti-Pattern</div>
+      <pre>
+/* Avoid guessing why a test failed */
+// ❌ adding random waitForTimeout calls
+// ❌ changing locators before checking trace / UI / console evidence
+</pre>
+
+      <div class="section-label">Example Flow</div>
+      <pre>
+test('debug failing checkout', async ({ page }) => {
+  page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
+  page.on('requestfailed', request => {
+    console.log('REQUEST FAILED:', request.url());
+  });
+
+  await page.goto('/checkout');
+  await page.pause();
+
+  await page.screenshot({ path: 'checkout-debug.png', fullPage: true });
+
+  const errorBanner = page.locator('.error-banner');
+  console.log('Error visible:', await errorBanner.isVisible());
+});
+</pre>
+    </div>
+
+    <div id="ci-patterns" class="quick-access-section pattern-block">
+      <div class="quick-access-title">Run in CI Patterns</div>
+
+      <div class="section-label">Core Pattern</div>
+      <pre>
+# GitHub Actions basic Playwright run
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run tests
+        run: npx playwright test
+</pre>
+
+      <div class="section-label">Artifact Pattern</div>
+      <pre>
+# Upload report even if tests fail
+- name: Upload Playwright Report
+  if: always()
+  uses: actions/upload-artifact@v4
+  with:
+    name: playwright-report
+    path: playwright-report/
+    retention-days: 7
+</pre>
+
+      <div class="section-label">Failure Evidence Pattern</div>
+      <pre>
+/* playwright.config.js */
+use: {
+  trace: 'on-first-retry',
+  screenshot: 'only-on-failure',
+  video: 'retain-on-failure'
+}
+</pre>
+
+      <div class="section-label">Environment Variable Pattern</div>
+      <pre>
+# GitHub Actions env example
+- name: Run tests
+  run: npx playwright test
+  env:
+    BASE_URL: ${{ secrets.BASE_URL }}
+    USER_EMAIL: ${{ secrets.USER_EMAIL }}
+    USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+</pre>
+
+      <div class="section-label">Single Suite Pattern</div>
+      <pre>
+# Run one folder or tag in CI
+- name: Run regression suite
+  run: npx playwright test Regression
+
+# Or run tagged tests
+- name: Run smoke tests
+  run: npx playwright test --grep "@smoke"
+</pre>
+
+      <div class="section-label">Anti-Pattern</div>
+      <pre>
+# Avoid this
+- using npm install instead of npm ci in CI
+- skipping playwright install --with-deps
+- not uploading artifacts after failures
+- hardcoding credentials in workflow files
+</pre>
+
+      <div class="section-label">Example Flow</div>
+      <pre>
+name: Playwright Regression
+
+on:
+  workflow_dispatch:
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install browsers
+        run: npx playwright install --with-deps
+
+      - name: Run regression
+        run: npx playwright test Regression --reporter=line
+        env:
+          CI: 'true'
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+</pre>
+    </div>
 
     <!-- Session 1 -->
     <div class="session" id="session-1" data-category="core" onclick="toggleSession(this)">
@@ -924,7 +1361,7 @@ await page.waitForTimeout(2000); // ❌ flaky
         <ul class="topics-list">
           <li>Node.js + npm prerequisites check</li>
           <li><code>npm init playwright@latest</code> — what it creates and why</li>
-          <li>playwright.config.ts anatomy: baseURL, browsers, timeout</li>
+          <li>playwright.config.js anatomy: baseURL, browsers, timeout</li>
           <li>Writing a minimal test with <code>test()</code>, <code>page.goto()</code>, <code>expect()</code></li>
           <li>Running tests: <code>npx playwright test</code>, <code>--ui</code> flag, <code>--headed</code></li>
           <li>Reading the HTML report: <code>npx playwright show-report</code></li>
@@ -961,7 +1398,7 @@ await page.waitForTimeout(2000); // ❌ flaky
             <span class="review-time">Self-check questions</span>
           </div>
           <ul class="review-questions">
-            <li>What does playwright.config.ts control, and which 3 settings matter most day-to-day?</li>
+            <li>What does playwright.config.js control, and which 3 settings matter most day-to-day?</li>
             <li>What's the difference between <code>--ui</code> and <code>--headed</code>?</li>
             <li>Write from memory: a 5-line test that visits example.com and checks the title.</li>
           </ul>
@@ -1404,7 +1841,7 @@ await page.waitForTimeout(2000); // ❌ flaky
           <li>Storage state: saving and loading cookies + localStorage</li>
           <li><code>page.context().storageState()</code> for saving session</li>
           <li>Global setup file pattern for one-time login</li>
-          <li><code>storageState</code> in playwright.config.ts</li>
+          <li><code>storageState</code> in playwright.config.js</li>
           <li>Multiple user roles with multiple storage state files</li>
           <li>API-based login (faster than UI login) for auth setup</li>
           <li>Handling JWT tokens and session refresh</li>
@@ -2244,6 +2681,8 @@ await page.waitForTimeout(2000); // ❌ flaky
         const targetId = button.dataset.target;
         const target = document.getElementById(targetId);
         if (!target) return;
+
+        document.querySelectorAll('.session').forEach(s => s.classList.remove('open'));
 
         if (target.classList.contains('session')) {
           target.classList.add('open');
