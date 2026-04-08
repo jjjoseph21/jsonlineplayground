@@ -724,6 +724,54 @@
       padding: 0 2px;
       border-radius: 3px;
     }
+
+    .collapsible-task {
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+
+    .collapsible-task:hover {
+      border-color: rgba(0, 229, 160, 0.3);
+      transform: translateX(4px);
+    }
+
+    .task-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .task-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .task-chevron {
+      color: var(--muted);
+      font-size: 18px;
+      transition: transform 0.3s, color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .collapsible-task.open .task-chevron {
+      transform: rotate(180deg);
+      color: var(--accent);
+    }
+
+    .task-body {
+      display: none;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .collapsible-task.open .task-body {
+      display: block;
+    }
   </style>
 </head>
 
@@ -839,17 +887,20 @@
       <div class="progress-dots" id="progressDots"></div>
     </div>
 
-    <!-- ===== PHASE 1 ===== -->
     <div class="phase-header">
-      <div class="phase-badge phase-1">Phase 1</div>
-      <div class="phase-title">Foundations & Core Concepts</div>
+      <div class="phase-badge phase-1">Toolkit</div>
+      <div class="phase-title">Common Playwright Task Patterns</div>
       <div class="phase-line"></div>
     </div>
 
-    <div id="locator-patterns" class="quick-access-section pattern-block">
-      <div class="quick-access-title">Locator Patterns</div>
+    <div id="locator-patterns" class="quick-access-section pattern-block collapsible-task" onclick="toggleTask(this)">
+      <div class="task-header">
+        <div class="task-title">Locator Patterns</div>
+        <div class="task-chevron">▾</div>
+      </div>
 
-      <pre>
+      <div class="task-body">
+        <pre>
 /* Best Practice Hierarchy */
 getByRole('button', { name: 'Submit' })
 getByLabel('Email')
@@ -861,13 +912,18 @@ locator('[data-testid="submit-btn"]')
 /* Avoid when possible */
 locator('.btn.primary')
 locator('//div[3]/button[2]')
-</pre>
+    </pre>
+      </div>
     </div>
 
-    <div id="date-patterns" class="quick-access-section pattern-block">
-      <div class="quick-access-title">Date / Time Handling</div>
+    <div id="date-patterns" class="quick-access-section pattern-block collapsible-task" onclick="toggleTask(this)">
+      <div class="task-header">
+        <div class="task-title">Date / Time Handling</div>
+        <div class="task-chevron">▾</div>
+      </div>
 
-      <pre>
+      <div class="task-body">
+        <pre>
 /* Add 3 days */
 const future = new Date();
 future.setDate(future.getDate() + 3);
@@ -892,12 +948,17 @@ const date = future.toLocaleDateString('en-US');
 /* Format time */
 const time = `${future.getHours()}:${String(rounded).padStart(2,'0')}`;
 </pre>
+      </div>
     </div>
 
-    <div id="wait-patterns" class="quick-access-section pattern-block">
-      <div class="quick-access-title">Wait / Stability Patterns</div>
+    <div id="wait-patterns" class="quick-access-section pattern-block collapsible-task" onclick="toggleTask(this)">
+      <div class="task-header">
+        <div class="task-title">Wait / Stability Patterns</div>
+        <div class="task-chevron">▾</div>
+      </div>
 
-      <pre>
+      <div class="task-body">
+        <pre>
 /* Wait for element */
 await expect(locator).toBeVisible();
 
@@ -921,13 +982,26 @@ await expect(rows).toHaveCount(10);
 /* Avoid this */
 await page.waitForTimeout(2000); // ❌ flaky
 </pre>
+      </div>
     </div>
 
-    <div id="flaky-test-patterns" class="quick-access-section pattern-block">
-      <div class="quick-access-title">Fix Flaky Test Patterns</div>
+    <div id="flaky-test-patterns" class="quick-access-section pattern-block collapsible-task"
+      onclick="toggleTask(this)">
+      <div class="task-header">
+        <div class="task-title">Fix Flaky Test Patterns</div>
+        <div class="task-chevron">▾</div>
+      </div>
 
-      <div class="section-label">Core Pattern</div>
-      <pre>
+      <div class="task-body">
+        <div class="section-label">Core Pattern</div>
+
+        <div class="objective">
+          A Retry Block uses <code>expect(...).toPass()</code> to retry a code block until it succeeds or times out.
+          This is useful for slow-loading images, delayed rendering, and unstable UI readiness.
+        </div>
+
+
+        <pre>
 /* Retry Until Stable */
 const chart = page.locator('#revenue-chart');
 
@@ -947,14 +1021,14 @@ await page.waitForLoadState('networkidle');
 await page.locator('.loading-spinner').waitFor({ state: 'hidden', timeout: 10000 });
 </pre>
 
-      <div class="section-label">Anti-Pattern</div>
-      <pre>
+        <div class="section-label">Anti-Pattern</div>
+        <pre>
 /* Avoid This */
 await page.waitForTimeout(3000); // ❌ flaky
 </pre>
 
-      <div class="section-label">Example Flow</div>
-      <pre>
+        <div class="section-label">Example Flow</div>
+        <pre>
 await page.goto('/dashboard');
 
 await FlakyFixer.waitForStability(page);
@@ -970,13 +1044,19 @@ await page.getByRole('button', { name: 'Generate Report' }).click();
 const spinner = page.locator('.loading-spinner');
 await FlakyFixer.waitForVanished(spinner, 60_000);
 </pre>
+      </div>
     </div>
 
-    <div id="auth-state-patterns" class="quick-access-section pattern-block">
-      <div class="quick-access-title">Auth / Storage State Patterns</div>
+    <div id="auth-state-patterns" class="quick-access-section pattern-block collapsible-task"
+      onclick="toggleTask(this)">
+      <div class="task-header">
+        <div class="task-title">Auth / Storage State Patterns</div>
+        <div class="task-chevron">▾</div>
+      </div>
 
-      <div class="section-label">Core Pattern</div>
-      <pre>
+      <div class="task-body">
+        <div class="section-label">Core Pattern</div>
+        <pre>
 /* Save signed-in state once */
 await page.goto('/login');
 await page.getByLabel('Email').fill(process.env.USER_EMAIL);
@@ -987,15 +1067,15 @@ await expect(page).toHaveURL(/dashboard|home/);
 await page.context().storageState({ path: 'playwright/.auth/user.json' });
 </pre>
 
-      <div class="section-label">Reuse Pattern</div>
-      <pre>
+        <div class="section-label">Reuse Pattern</div>
+        <pre>
 use: {
   storageState: 'playwright/.auth/user.json'
 }
 </pre>
 
-      <div class="section-label">Multi-User Pattern</div>
-      <pre>
+        <div class="section-label">Multi-User Pattern</div>
+        <pre>
 /* Admin project */
 {
   name: 'admin',
@@ -1009,8 +1089,8 @@ use: {
 }
 </pre>
 
-      <div class="section-label">API Login Pattern</div>
-      <pre>
+        <div class="section-label">API Login Pattern</div>
+        <pre>
 /* Faster than UI login when supported */
 const requestContext = await request.newContext();
 
@@ -1024,8 +1104,8 @@ const response = await requestContext.post('/api/login', {
 await expect(response).toBeOK();
 </pre>
 
-      <div class="section-label">Anti-Pattern</div>
-      <pre>
+        <div class="section-label">Anti-Pattern</div>
+        <pre>
 /* Avoid logging in through the UI in every test */
 test('every test logs in from scratch', async ({ page }) => {
   await page.goto('/login');
@@ -1033,8 +1113,8 @@ test('every test logs in from scratch', async ({ page }) => {
 }); // ❌ slow and flaky
 </pre>
 
-      <div class="section-label">Example Flow</div>
-      <pre>
+        <div class="section-label">Example Flow</div>
+        <pre>
 /* global.setup.js */
 import { chromium, expect } from '@playwright/test';
 
@@ -1053,13 +1133,18 @@ export default async function globalSetup() {
   await browser.close();
 }
 </pre>
+      </div>
     </div>
 
-    <div id="mock-api-patterns" class="quick-access-section pattern-block">
-      <div class="quick-access-title">Mock API Patterns</div>
+    <div id="mock-api-patterns" class="quick-access-section pattern-block collapsible-task" onclick="toggleTask(this)">
+      <div class="task-header">
+        <div class="task-title">Mock API Patterns</div>
+        <div class="task-chevron">▾</div>
+      </div>
+      <div class="task-body">
 
-      <div class="section-label">Core Pattern</div>
-      <pre>
+        <div class="section-label">Core Pattern</div>
+        <pre>
 /* Mock a successful API response */
 await page.route('**/api/v1/menu**', async route => {
   await route.fulfill({
@@ -1075,8 +1160,8 @@ await page.route('**/api/v1/menu**', async route => {
 });
 </pre>
 
-      <div class="section-label">Empty State Pattern</div>
-      <pre>
+        <div class="section-label">Empty State Pattern</div>
+        <pre>
 /* Force empty results */
 await page.route('**/api/v1/menu**', async route => {
   await route.fulfill({
@@ -1087,8 +1172,8 @@ await page.route('**/api/v1/menu**', async route => {
 });
 </pre>
 
-      <div class="section-label">Error State Pattern</div>
-      <pre>
+        <div class="section-label">Error State Pattern</div>
+        <pre>
 /* Simulate server failure */
 await page.route('**/api/v1/menu**', async route => {
   await route.fulfill({
@@ -1099,22 +1184,22 @@ await page.route('**/api/v1/menu**', async route => {
 });
 </pre>
 
-      <div class="section-label">Spy / Wait Pattern</div>
-      <pre>
+        <div class="section-label">Spy / Wait Pattern</div>
+        <pre>
 /* Wait for a real API response */
 const response = await page.waitForResponse(resp =>
   resp.url().includes('/api/v1/menu') && resp.status() === 200
 );
 </pre>
 
-      <div class="section-label">Anti-Pattern</div>
-      <pre>
+        <div class="section-label">Anti-Pattern</div>
+        <pre>
 /* Avoid depending on unstable backend data for UI state tests */
 // ❌ test passes or fails depending on real API data
 </pre>
 
-      <div class="section-label">Example Flow</div>
-      <pre>
+        <div class="section-label">Example Flow</div>
+        <pre>
 await page.route('**/api/v1/menu**', async route => {
   await route.fulfill({
     status: 200,
@@ -1128,13 +1213,19 @@ await page.route('**/api/v1/menu**', async route => {
 await page.goto('/menu');
 await expect(page.getByText('Mocked Sandwich')).toBeVisible();
 </pre>
+      </div>
     </div>
 
-    <div id="debug-failure-patterns" class="quick-access-section pattern-block">
-      <div class="quick-access-title">Debug Failure Patterns</div>
+    <div id="debug-failure-patterns" class="quick-access-section pattern-block collapsible-task"
+      onclick="toggleTask(this)">
+      <div class="task-header">
+        <div class="task-title">Debug Failure Patterns</div>
+        <div class="task-chevron">▾</div>
+      </div>
+      <div class="task-body">
 
-      <div class="section-label">Core Pattern</div>
-      <pre>
+        <div class="section-label">Core Pattern</div>
+        <pre>
 /* Pause test execution and inspect live */
 await page.pause();
 
@@ -1145,8 +1236,8 @@ console.log(await page.url());
 await page.screenshot({ path: 'debug-screenshot.png', fullPage: true });
 </pre>
 
-      <div class="section-label">Trace Viewer Pattern</div>
-      <pre>
+        <div class="section-label">Trace Viewer Pattern</div>
+        <pre>
 /* playwright.config.js */
 use: {
   trace: 'on-first-retry',
@@ -1158,8 +1249,8 @@ use: {
 npx playwright show-trace trace.zip
 </pre>
 
-      <div class="section-label">Inspector Pattern</div>
-      <pre>
+        <div class="section-label">Inspector Pattern</div>
+        <pre>
 /* Run in headed debug mode */
 npx playwright test --debug
 
@@ -1167,8 +1258,8 @@ npx playwright test --debug
 npx playwright test --ui
 </pre>
 
-      <div class="section-label">Targeted Logging Pattern</div>
-      <pre>
+        <div class="section-label">Targeted Logging Pattern</div>
+        <pre>
 /* Capture locator text */
 const bannerText = await page.locator('#editTrip p').textContent();
 console.log('Trip banner:', bannerText);
@@ -1178,8 +1269,8 @@ const rows = page.locator('table tbody tr');
 console.log('Row count:', await rows.count());
 </pre>
 
-      <div class="section-label">Network / Console Pattern</div>
-      <pre>
+        <div class="section-label">Network / Console Pattern</div>
+        <pre>
 /* Browser console logging */
 page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
 
@@ -1189,15 +1280,15 @@ page.on('requestfailed', request => {
 });
 </pre>
 
-      <div class="section-label">Anti-Pattern</div>
-      <pre>
+        <div class="section-label">Anti-Pattern</div>
+        <pre>
 /* Avoid guessing why a test failed */
 // ❌ adding random waitForTimeout calls
 // ❌ changing locators before checking trace / UI / console evidence
 </pre>
 
-      <div class="section-label">Example Flow</div>
-      <pre>
+        <div class="section-label">Example Flow</div>
+        <pre>
 test('debug failing checkout', async ({ page }) => {
   page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
   page.on('requestfailed', request => {
@@ -1213,13 +1304,18 @@ test('debug failing checkout', async ({ page }) => {
   console.log('Error visible:', await errorBanner.isVisible());
 });
 </pre>
+      </div>
     </div>
 
-    <div id="ci-patterns" class="quick-access-section pattern-block">
-      <div class="quick-access-title">Run in CI Patterns</div>
+    <div id="ci-patterns" class="quick-access-section pattern-block collapsible-task" onclick="toggleTask(this)">
+      <div class="task-header">
+        <div class="task-title">Run in CI Patterns</div>
+        <div class="task-chevron">▾</div>
+      </div>
+      <div class="task-body">
 
-      <div class="section-label">Core Pattern</div>
-      <pre>
+        <div class="section-label">Core Pattern</div>
+        <pre>
 # GitHub Actions basic Playwright run
 name: Playwright Tests
 
@@ -1250,8 +1346,8 @@ jobs:
         run: npx playwright test
 </pre>
 
-      <div class="section-label">Artifact Pattern</div>
-      <pre>
+        <div class="section-label">Artifact Pattern</div>
+        <pre>
 # Upload report even if tests fail
 - name: Upload Playwright Report
   if: always()
@@ -1262,8 +1358,8 @@ jobs:
     retention-days: 7
 </pre>
 
-      <div class="section-label">Failure Evidence Pattern</div>
-      <pre>
+        <div class="section-label">Failure Evidence Pattern</div>
+        <pre>
 /* playwright.config.js */
 use: {
   trace: 'on-first-retry',
@@ -1272,8 +1368,8 @@ use: {
 }
 </pre>
 
-      <div class="section-label">Environment Variable Pattern</div>
-      <pre>
+        <div class="section-label">Environment Variable Pattern</div>
+        <pre>
 # GitHub Actions env example
 - name: Run tests
   run: npx playwright test
@@ -1283,8 +1379,8 @@ use: {
     USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
 </pre>
 
-      <div class="section-label">Single Suite Pattern</div>
-      <pre>
+        <div class="section-label">Single Suite Pattern</div>
+        <pre>
 # Run one folder or tag in CI
 - name: Run regression suite
   run: npx playwright test Regression
@@ -1294,8 +1390,8 @@ use: {
   run: npx playwright test --grep "@smoke"
 </pre>
 
-      <div class="section-label">Anti-Pattern</div>
-      <pre>
+        <div class="section-label">Anti-Pattern</div>
+        <pre>
 # Avoid this
 - using npm install instead of npm ci in CI
 - skipping playwright install --with-deps
@@ -1303,8 +1399,8 @@ use: {
 - hardcoding credentials in workflow files
 </pre>
 
-      <div class="section-label">Example Flow</div>
-      <pre>
+        <div class="section-label">Example Flow</div>
+        <pre>
 name: Playwright Regression
 
 on:
@@ -1339,6 +1435,14 @@ jobs:
           name: playwright-report
           path: playwright-report/
 </pre>
+      </div>
+    </div>
+
+    <!-- ===== PHASE 1 ===== -->
+    <div class="phase-header">
+      <div class="phase-badge phase-1">Phase 1</div>
+      <div class="phase-title">Foundations & Core Concepts</div>
+      <div class="phase-line"></div>
     </div>
 
     <!-- Session 1 -->
@@ -1425,7 +1529,8 @@ jobs:
       </div>
       <div class="session-body">
         <div class="section-label">Objective</div>
-        <div class="objective">Master the Locator API — the single most important concept in Playwright. Understand why
+        <div class="objective">Master the Locator API — the single most important concept in Playwright. Understand
+          why
           locators beat raw selectors and how to write resilient ones.</div>
 
         <div class="section-label">Topics (45 min)</div>
@@ -1446,7 +1551,8 @@ jobs:
             <span class="resource-type rt-docs">Docs</span>
             <div class="resource-info">
               <div class="resource-name">playwright.dev/docs/locators</div>
-              <div class="resource-desc">Read the entire Locators page — this is the highest ROI page in all of the docs
+              <div class="resource-desc">Read the entire Locators page — this is the highest ROI page in all of the
+                docs
               </div>
             </div>
           </div>
@@ -1521,7 +1627,8 @@ jobs:
             <span class="resource-type rt-docs">Docs</span>
             <div class="resource-info">
               <div class="resource-name">playwright.dev/docs/input & /docs/actionability</div>
-              <div class="resource-desc">Read both pages back to back — actionability is what prevents flaky tests</div>
+              <div class="resource-desc">Read both pages back to back — actionability is what prevents flaky tests
+              </div>
             </div>
           </div>
           <div class="resource-item">
@@ -1586,7 +1693,8 @@ jobs:
             <span class="resource-type rt-docs">Docs</span>
             <div class="resource-info">
               <div class="resource-name">playwright.dev/docs/test-assertions</div>
-              <div class="resource-desc">Bookmark this — you'll return to it constantly. Read every matcher once.</div>
+              <div class="resource-desc">Bookmark this — you'll return to it constantly. Read every matcher once.
+              </div>
             </div>
           </div>
           <div class="resource-item">
@@ -1737,7 +1845,8 @@ jobs:
             <span class="resource-type rt-practice">Practice</span>
             <div class="resource-info">
               <div class="resource-name">Build POM for saucedemo.com</div>
-              <div class="resource-desc">Login page, Inventory page, Cart page, Checkout flow — 4 page objects, 8 tests
+              <div class="resource-desc">Login page, Inventory page, Cart page, Checkout flow — 4 page objects, 8
+                tests
               </div>
             </div>
           </div>
@@ -1773,7 +1882,8 @@ jobs:
       </div>
       <div class="session-body">
         <div class="section-label">Objective</div>
-        <div class="objective">Intercept, mock, modify, and spy on network requests. This skill lets you test UI states
+        <div class="objective">Intercept, mock, modify, and spy on network requests. This skill lets you test UI
+          states
           that are hard to reproduce with a real backend.</div>
 
         <div class="section-label">Topics (45 min)</div>
@@ -1964,7 +2074,8 @@ jobs:
       </div>
       <div class="session-body">
         <div class="section-label">Objective</div>
-        <div class="objective">Become fluent with Playwright's debugging toolkit. After this session, a failing test is
+        <div class="objective">Become fluent with Playwright's debugging toolkit. After this session, a failing test
+          is
           a puzzle you can always solve — not a mystery.</div>
 
         <div class="section-label">Topics (45 min)</div>
@@ -2005,7 +2116,8 @@ jobs:
           <ul class="review-questions">
             <li>Walk through the trace viewer: what 5 types of info can you see in a trace?</li>
             <li>What's the fastest way to pick a locator for an element you've never seen before?</li>
-            <li>At this point you should be able to: write tests, use locators, assert, structure with POM, handle auth,
+            <li>At this point you should be able to: write tests, use locators, assert, structure with POM, handle
+              auth,
               mock APIs, and debug failures. What's the weakest of these for you?</li>
           </ul>
         </div>
@@ -2233,7 +2345,8 @@ jobs:
             <span class="resource-type rt-practice">Practice</span>
             <div class="resource-info">
               <div class="resource-name">the-internet.herokuapp.com</div>
-              <div class="resource-desc">A treasure chest: iFrames, alerts, auth, drag/drop, dynamic loading — each as a
+              <div class="resource-desc">A treasure chest: iFrames, alerts, auth, drag/drop, dynamic loading — each as
+                a
                 separate challenge</div>
             </div>
           </div>
@@ -2269,7 +2382,8 @@ jobs:
       </div>
       <div class="session-body">
         <div class="section-label">Objective</div>
-        <div class="objective">Ship a working GitHub Actions workflow that runs Playwright tests on every PR. Understand
+        <div class="objective">Ship a working GitHub Actions workflow that runs Playwright tests on every PR.
+          Understand
           artifacts, caching, and environment variable handling in CI.</div>
 
         <div class="section-label">Topics (45 min)</div>
@@ -2372,7 +2486,8 @@ jobs:
           <ul class="review-questions">
             <li>How do you type a custom fixture that returns a logged-in page object?</li>
             <li>Write a <code>UserData</code> interface with 5 fields for a test data builder.</li>
-            <li>What's the benefit of typing your environment config vs using <code>process.env.X</code> directly?</li>
+            <li>What's the benefit of typing your environment config vs using <code>process.env.X</code> directly?
+            </li>
           </ul>
         </div>
       </div>
@@ -2414,7 +2529,8 @@ jobs:
             <span class="resource-type rt-repo">Repo</span>
             <div class="resource-info">
               <div class="resource-name">github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright</div>
-              <div class="resource-desc">Official axe-playwright package — README has everything you need to get started
+              <div class="resource-desc">Official axe-playwright package — README has everything you need to get
+                started
               </div>
             </div>
           </div>
@@ -2422,7 +2538,8 @@ jobs:
             <span class="resource-type rt-docs">Docs</span>
             <div class="resource-info">
               <div class="resource-name">playwright.dev/docs/accessibility-testing</div>
-              <div class="resource-desc">First-party accessibility testing guide added recently — concise and practical
+              <div class="resource-desc">First-party accessibility testing guide added recently — concise and
+                practical
               </div>
             </div>
           </div>
@@ -2619,7 +2736,8 @@ jobs:
           </div>
           <ul class="review-questions">
             <li>Which of the 4 phases felt strongest? Which was weakest — revisit that phase's sessions.</li>
-            <li>What would you add next? (Mobile testing with devices, Electron, BDD with Cucumber, cloud services like
+            <li>What would you add next? (Mobile testing with devices, Electron, BDD with Cucumber, cloud services
+              like
               BrowserStack)</li>
             <li>Push the capstone repo. You now have a professional Playwright portfolio piece.</li>
           </ul>
@@ -2640,6 +2758,10 @@ jobs:
 
   <script>
     function toggleSession(el) {
+      el.classList.toggle('open');
+    }
+
+    function toggleTask(el) {
       el.classList.toggle('open');
     }
 
@@ -2687,7 +2809,7 @@ jobs:
 
         document.querySelectorAll('.session').forEach(s => s.classList.remove('open'));
 
-        if (target.classList.contains('session')) {
+        if (target.classList.contains('session') || target.classList.contains('collapsible-task')) {
           target.classList.add('open');
         }
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2756,34 +2878,54 @@ jobs:
     }
 
     function applyFilters() {
-  const query = searchInput.value.trim().toLowerCase();
+      const query = searchInput.value.trim().toLowerCase();
 
-  searchableItems.forEach(item => {
-    removeHighlights(item);
+      searchableItems.forEach(item => {
+        removeHighlights(item);
 
-    const isSession = item.classList.contains('session');
-    const category = item.dataset.category || '';
-    const text = item.textContent.toLowerCase();
+        const isSession = item.classList.contains('session');
+        const category = item.dataset.category || '';
+        const text = item.textContent.toLowerCase();
 
-    const matchesSearch = !query || text.includes(query);
-    const matchesFilter = !isSession || activeFilter === 'all' || category === activeFilter;
+        const matchesSearch = !query || text.includes(query);
+        const matchesFilter = !isSession || activeFilter === 'all' || category === activeFilter;
 
-    const shouldShow = matchesSearch && matchesFilter;
-    item.classList.toggle('hidden', !shouldShow);
+        const shouldShow = matchesSearch && matchesFilter;
+        item.classList.toggle('hidden', !shouldShow);
 
-    if (shouldShow && query) {
-      highlightText(item, query);
+        if (shouldShow && query) {
+          highlightText(item, query);
+        }
+      });
     }
-  });
-}
 
     searchInput.addEventListener('input', applyFilters);
 
     filterButtons.forEach(button => {
       button.addEventListener('click', () => {
-        filterButtons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-        activeFilter = button.dataset.filter;
+
+        // If clicking already active filter → reset to All
+        if (button.dataset.filter === activeFilter) {
+          activeFilter = 'all';
+
+          filterButtons.forEach(btn =>
+            btn.classList.remove('active')
+          );
+
+          document
+            .querySelector('[data-filter="all"]')
+            .classList.add('active');
+
+        } else {
+
+          filterButtons.forEach(btn =>
+            btn.classList.remove('active')
+          );
+
+          button.classList.add('active');
+          activeFilter = button.dataset.filter;
+        }
+
         applyFilters();
       });
     });
