@@ -713,6 +713,17 @@
       font-size: 12px;
       line-height: 1.6;
     }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .search-hit {
+      background: rgba(0, 229, 160, 0.18);
+      color: #fff;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
   </style>
 </head>
 
@@ -788,7 +799,7 @@
         <button class="quick-link" data-target="auth-state-patterns">Save auth state</button>
         <button class="quick-link" data-target="mock-api-patterns">Mock API</button>
         <button class="quick-link" data-target="debug-failure-patterns">Debug failure</button>
-        <button class="quick-link" data-target="ci-patterns">Run in CI</button>  
+        <button class="quick-link" data-target="ci-patterns">Run in CI</button>
       </div>
     </div>
 
@@ -2688,23 +2699,83 @@ jobs:
     // Search + Filter
     const searchInput = document.getElementById('searchInput');
     const filterButtons = document.querySelectorAll('.filter-btn');
-    const sessions = document.querySelectorAll('.session');
+    const searchableItems = document.querySelectorAll('.session, .pattern-block');
 
     let activeFilter = 'all';
 
-    function applyFilters() {
-      const query = searchInput.value.trim().toLowerCase();
-
-      sessions.forEach(session => {
-        const category = session.dataset.category || '';
-        const text = session.textContent.toLowerCase();
-
-        const matchesSearch = !query || text.includes(query);
-        const matchesFilter = activeFilter === 'all' || category === activeFilter;
-
-        session.classList.toggle('hidden', !(matchesSearch && matchesFilter));
+    function removeHighlights(element) {
+      element.querySelectorAll('.search-hit').forEach(span => {
+        span.replaceWith(document.createTextNode(span.textContent));
       });
+      element.normalize();
     }
+
+    function highlightText(element, query) {
+      if (!query) return;
+
+      const skipTags = new Set(['SCRIPT', 'STYLE']);
+
+      function walk(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.textContent;
+          const lower = text.toLowerCase();
+          const q = query.toLowerCase();
+
+          const index = lower.indexOf(q);
+          if (index === -1) return;
+
+          const before = text.slice(0, index);
+          const match = text.slice(index, index + query.length);
+          const after = text.slice(index + query.length);
+
+          const fragment = document.createDocumentFragment();
+          if (before) fragment.appendChild(document.createTextNode(before));
+
+          const span = document.createElement('span');
+          span.className = 'search-hit';
+          span.textContent = match;
+          fragment.appendChild(span);
+
+          if (after) fragment.appendChild(document.createTextNode(after));
+
+          node.parentNode.replaceChild(fragment, node);
+
+          // Continue highlighting the rest of this element
+          if (after) {
+            highlightText(element, query);
+          }
+          return;
+        }
+
+        if (node.nodeType === Node.ELEMENT_NODE && !skipTags.has(node.tagName) && !node.classList.contains('search-hit')) {
+          [...node.childNodes].forEach(walk);
+        }
+      }
+
+      walk(element);
+    }
+
+    function applyFilters() {
+  const query = searchInput.value.trim().toLowerCase();
+
+  searchableItems.forEach(item => {
+    removeHighlights(item);
+
+    const isSession = item.classList.contains('session');
+    const category = item.dataset.category || '';
+    const text = item.textContent.toLowerCase();
+
+    const matchesSearch = !query || text.includes(query);
+    const matchesFilter = !isSession || activeFilter === 'all' || category === activeFilter;
+
+    const shouldShow = matchesSearch && matchesFilter;
+    item.classList.toggle('hidden', !shouldShow);
+
+    if (shouldShow && query) {
+      highlightText(item, query);
+    }
+  });
+}
 
     searchInput.addEventListener('input', applyFilters);
 
