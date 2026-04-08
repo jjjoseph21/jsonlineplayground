@@ -716,13 +716,12 @@
   </style>
 </head>
 
-<div class="principle">
+<!--<div class="principle">
   <div class="principle-icon">⚡</div>
   <div class="principle-text">
     All examples use <strong>Playwright JavaScript</strong> syntax. 
     Remove TypeScript-specific syntax (like <code>!</code>) if adapting from TS examples.
-  </div>
-</div>
+  </div>-->
 
 <body>
   <div class="container">
@@ -1041,7 +1040,7 @@ export default async function globalSetup() {
 
   await page.goto('/login');
   await page.getByLabel('Email').fill(process.env.USER_EMAIL);
-  await page.getByLabel('Password').fill(process.env.USER_PASSWORD!);
+  await page.getByLabel('Password').fill(process.env.USER_PASSWORD);
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   await expect(page).toHaveURL(/dashboard|home/);
