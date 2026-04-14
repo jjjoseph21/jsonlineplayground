@@ -874,19 +874,6 @@
       </div>
     </div>
 
-    <!-- Progress Tracker -->
-    <div class="progress-section">
-      <div class="progress-title">Your Progress</div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar-fill" id="progressBar"></div>
-      </div>
-      <div class="progress-stats">
-        <span id="progressText">0 of 20 sessions complete</span>
-        <span id="hoursText">0 / 20 hours</span>
-      </div>
-      <div class="progress-dots" id="progressDots"></div>
-    </div>
-
     <div class="phase-header">
       <div class="phase-badge phase-1">Toolkit</div>
       <div class="phase-title">Common Playwright Task Patterns</div>
@@ -1438,6 +1425,19 @@ jobs:
       </div>
     </div>
 
+    <!-- Progress Tracker -->
+    <div class="progress-section">
+      <div class="progress-title">Learning Progress</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+      <div class="progress-stats">
+        <span id="progressText">0 of 20 sessions complete</span>
+        <span id="hoursText">0 / 20 hours</span>
+      </div>
+      <div class="progress-dots" id="progressDots"></div>
+    </div>
+
     <!-- ===== PHASE 1 ===== -->
     <div class="phase-header">
       <div class="phase-badge phase-1">Phase 1</div>
@@ -1877,31 +1877,36 @@ jobs:
 
         <div class="section-label">Resources</div>
         <div class="resources-grid">
-          <div class="resource-item">
+          <a class="resource-item" href="https://playwright.dev/docs/pom" target="_blank" rel="noopener noreferrer"
+            onclick="event.stopPropagation()">
             <span class="resource-type rt-docs">Docs</span>
             <div class="resource-info">
-              <div class="resource-name">playwright.dev/docs/pom</div>
-              <div class="resource-desc">Official POM guide with full example — read then immediately rewrite it from
-                scratch</div>
+              <div class="resource-name">Playwright Page Object Model Documentation</div>
+              <div class="resource-desc">Official guide to structuring page objects, separating test logic, and building
+                maintainable test suites.</div>
             </div>
-          </div>
-          <div class="resource-item">
-            <span class="resource-type rt-repo">Repo</span>
+          </a>
+
+          <a class="resource-item"
+            href="https://www.youtube.com/results?search_query=Playwright+Page+Object+Model+Tutorial" target="_blank"
+            rel="noopener noreferrer" onclick="event.stopPropagation()">
+            <span class="resource-type rt-video">Search</span>
             <div class="resource-info">
-              <div class="resource-name">github.com/microsoft/playwright/tree/main/examples</div>
-              <div class="resource-desc">Study the todomvc example — best real-world POM reference from the Playwright
-                team itself</div>
+              <div class="resource-name">Search YouTube: Playwright Page Object Model Tutorial</div>
+              <div class="resource-desc">Search for tutorials covering page object structure, reusable methods, and
+                maintainable framework design.</div>
             </div>
-          </div>
-          <div class="resource-item">
+          </a>
+
+          <a class="resource-item" href="https://www.saucedemo.com/" target="_blank" rel="noopener noreferrer"
+            onclick="event.stopPropagation()">
             <span class="resource-type rt-practice">Practice</span>
             <div class="resource-info">
-              <div class="resource-name">Build POM for saucedemo.com</div>
-              <div class="resource-desc">Login page, Inventory page, Cart page, Checkout flow — 4 page objects, 8
-                tests
-              </div>
+              <div class="resource-name">Build a POM Against Sauce Demo</div>
+              <div class="resource-desc">Practice creating page objects for login, inventory, cart, and checkout flows
+                using a simple live app.</div>
             </div>
-          </div>
+          </a>
         </div>
 
         <div class="review-block">
@@ -1951,21 +1956,36 @@ jobs:
 
         <div class="section-label">Resources</div>
         <div class="resources-grid">
-          <div class="resource-item">
+          <a class="resource-item" href="https://playwright.dev/docs/network" target="_blank" rel="noopener noreferrer"
+            onclick="event.stopPropagation()">
             <span class="resource-type rt-docs">Docs</span>
             <div class="resource-info">
-              <div class="resource-name">playwright.dev/docs/network & /docs/mock</div>
-              <div class="resource-desc">Both pages — network and mock are complementary, read them together</div>
+              <div class="resource-name">Playwright Network Documentation</div>
+              <div class="resource-desc">Official guide to intercepting requests, observing responses, and working with
+                network events in Playwright.</div>
             </div>
-          </div>
-          <div class="resource-item">
+          </a>
+
+          <a class="resource-item"
+            href="https://www.youtube.com/results?search_query=Playwright+Network+Interception+Mocking+Tutorial"
+            target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
+            <span class="resource-type rt-video">Search</span>
+            <div class="resource-info">
+              <div class="resource-name">Search YouTube: Playwright Network Interception Mocking Tutorial</div>
+              <div class="resource-desc">Search for tutorials covering request interception, route.fulfill(),
+                route.continue(), and API mocking patterns.</div>
+            </div>
+          </a>
+
+          <a class="resource-item" href="https://jsonplaceholder.typicode.com/" target="_blank"
+            rel="noopener noreferrer" onclick="event.stopPropagation()">
             <span class="resource-type rt-practice">Practice</span>
             <div class="resource-info">
-              <div class="resource-name">Mock a REST API on jsonplaceholder.typicode.com</div>
-              <div class="resource-desc">Intercept GET /posts, return 3 custom items, assert UI renders them correctly
-              </div>
+              <div class="resource-name">Practice with JSONPlaceholder</div>
+              <div class="resource-desc">Use a live fake REST API to practice intercepting, mocking, and validating
+                request and response behavior.</div>
             </div>
-          </div>
+          </a>
         </div>
 
         <div class="review-block">
